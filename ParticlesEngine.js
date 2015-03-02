@@ -46,12 +46,12 @@ generateParticles = function (id, userOptions) {
 
 var options = {
 
-    particleType:"square",
+    particleType:"square", // square, text
     particleText:"☆",
    
 	emitterShape:":)",
     emitterFontSize:150,
-	emitterType:"random",
+	emitterType:"random", // random, point, text
     emitterPositionX:50,
     emitterPositionY:50,
     particlesNumber: 250,
@@ -85,7 +85,7 @@ var options = {
     
     // mouse connections
     mouseInteraction:false,
-    mouseInteractionType:"initial",
+    mouseInteractionType:"initial", // initial, gravity
 	
 	
     drawMouseConnections:false,
@@ -96,7 +96,7 @@ var options = {
     mouseConnectionOpacity:0.1,
     
     showStatistics: true,
-	backgroundMode:"gradient",
+	backgroundMode:"gradient", // gradient,image
     backgroundImage:"img/wallpaper.jpg",
 	
     
@@ -127,7 +127,7 @@ var extendOptions = function(options, userOptions){
 }
 
 // ----------------------------------------------------
-// Handle different instances and global window.particleEngine //
+// Use setTimeout if there is no support for requestAnimationFrame
 //-----------------------------------------------------
 
 
@@ -140,14 +140,12 @@ var requestAnimationFrame = window.requestAnimationFrame || function(callback) {
     
 
 
-
-
 // ----------------------------------------------------
 // Generate canvas element //
 //-----------------------------------------------------
 
 var container = document.getElementById(id);
-if (container === null) return console.error("Container is Null");
+if (container === null) return console.error("ParticlesEngine Error - Container is Null");
 
 
 var canvas = document.createElement("canvas");
@@ -182,32 +180,45 @@ var emitterPositions = []
 // ----------------------------------------------------
 // Init function //
 //-----------------------------------------------------
+
 var initAnimation = function(){
 
    
-    if (typeof window.particleEngine === "undefined") { 
+	// ----------------------------------------------------
+	// Handle different instances and global window.particleEngine //
+	//-----------------------------------------------------
+
+	
+	if (typeof window.particleEngine === "undefined") { 
     
         window.particleEngine = {};
+		window.particleEngine.resizeHandler = {};
+
         
     } else if (typeof window.particleEngine["animation"+id] !== "undefined") {
         
-        
+        // if animation already exists - cancel animation and remove window listeners to delete connections for garbage collection
         cancelAnimation(window.particleEngine["animation"+id]);
+		window.removeEventListener("resize",window.particleEngine.resizeHandler["animation"+id],false)
+		
     
     }
-    
-    
-    
-       
+	
+	// create window.resize listener for current animation
+	window.particleEngine.resizeHandler["animation"+id] = function(){initAnimation()} // new handler
+	window.addEventListener("resize",window.particleEngine.resizeHandler["animation"+id],false)
+     
 
     extendOptions(options,userOptions)
         
     canvas.width = container.clientWidth ;
     canvas.height = container.clientHeight ;
+	
+
     
     if (options.backgroundMode === "gradient") { 
 
-    createBackgroundGradient();
+    	createBackgroundGradient();
 
     } else if (options.backgroundMode === "image") {
     
@@ -222,13 +233,12 @@ var initAnimation = function(){
     
     objects.length = 0;
     emitterPositions.length = 0;
-    clearCanvas();
+   	
 	createScene();
     loop();
 
 };
 
-container.addEventListener("resize", function(){ initAnimation() }, false)
 
 
 // ----------------------------------------------------
@@ -292,7 +302,7 @@ var getDistance = function(element1, element2) {
 // ----------------------------------------------------
 // Particle constructor function //
 //-----------------------------------------------------
-function Particle(positionX, positionY) {
+var Particle = function (positionX, positionY) {
 
     this.positionX = positionX;
     this.positionY = positionY;
@@ -304,7 +314,7 @@ function Particle(positionX, positionY) {
 // ----------------------------------------------------
 // Mouse Object constructor function //
 //-----------------------------------------------------
-function Mouse(positionX, positionY, size, red, green, blue, opacity) {
+var Mouse = function (positionX, positionY, size, red, green, blue, opacity) {
 
     this.positionX = mousePositionX;
     this.positionY = mousePositionY;
@@ -491,11 +501,12 @@ Particle.prototype.init = function(){
 	this.actions = []; // container for temporary effects
 	
     this.calculateVector();
+		
+	this.active = true;
+    this.closestDistance = maximumPossibleDistance;
 	
 	objects.push(this);
-	this.active = true;
     this.index = objects.indexOf(this);
-    this.closestDistance = maximumPossibleDistance;
 
 
 }
@@ -512,7 +523,7 @@ Particle.prototype.initOpacity = function(){
 	
 	}
 	
-	 this.initialOpacity = this.opacity;
+	this.initialOpacity = this.opacity;
 
 };
 
@@ -578,6 +589,13 @@ Particle.prototype.calculateVector = function() {
 };
 
 
+
+// ----------------------------------------------------
+// Test interaction //
+//-----------------------------------------------------
+// Brute-force method to test interactions between particles
+// We are are starting loop from particle.index value to avoid double tests between particles.
+
 Particle.prototype.testInteraction = function() {
 
     for (var x = this.index+1; x < objects.length; x++) {
@@ -586,7 +604,6 @@ Particle.prototype.testInteraction = function() {
         var testedObject = objects[x];
      
         var distance = getDistance(this, testedObject);
-
 
 
         if (distance < this.closestDistance) {
@@ -894,25 +911,24 @@ var createScene = function() {
 	
 	
 };
-
-  
+ 
 
 var updateScene = function() {
 
     
-    // reset distance to closest element
+    // reset distance to closest element for all particles
     for (var x = 0; x<objects.length; x++) {
  
         objects[x].closestDistance = maximumPossibleDistance;
 
     }
 
+	// reset distance to closest element
     for (var x = 0; x<objects.length; x++) {
 		
        	var particle = objects[x];
-
-        
-         particle.doActions();
+		
+		particle.doActions();
         
         if (particle.active) {
 		
@@ -933,14 +949,8 @@ var updateScene = function() {
             
            
             particle.fadeIn();
-        
-        
-        
-        
+ 
         }
-        
-      
-	
 
     }
     
@@ -957,8 +967,6 @@ canvas.onmousemove = function(e){
     
 
 };
-
-canvas.addEventListener("click",function(){stopAnimation()},false)
 
 
 var clearCanvas = function() {
@@ -1101,8 +1109,7 @@ var loop = function() {
 
     clearCanvas();
     updateScene();
-    
-   
+
     
     window.particleEngine["animation"+id] = requestAnimationFrame(loop);
     isRunning = true;
@@ -1112,7 +1119,6 @@ var loop = function() {
 
 
 initAnimation();
-
 
 
 
