@@ -125,7 +125,6 @@ var extendOptions = function(options, userOptions){
     
     return options;
 }
-
 // ----------------------------------------------------
 // Use setTimeout if there is no support for requestAnimationFrame
 //-----------------------------------------------------
@@ -298,104 +297,6 @@ var getDistance = function(element1, element2) {
 };
 
 
-
-// ----------------------------------------------------
-// Particle constructor function //
-//-----------------------------------------------------
-var Particle = function (positionX, positionY) {
-
-    this.positionX = positionX;
-    this.positionY = positionY;
-    this.initialPositionX = positionX;
-    this.initialPositionY = positionY;
-   
-}
-
-// ----------------------------------------------------
-// Mouse Object constructor function //
-//-----------------------------------------------------
-var Mouse = function (positionX, positionY, size, red, green, blue, opacity) {
-
-    this.positionX = mousePositionX;
-    this.positionY = mousePositionY;
-    this.size = size;
-
-    this.red = red;
-    this.green = green;
-    this.blue = blue;
-    this.opacity = opacity;
-
-
-    this.color = "rgba(" + this.red + "," + this.green + "," + this.blue + ",+" + this.opacity + ")";
-
-}
-
-
-Particle.prototype.doActions = function(){
-
-    for (var x=0; x<this.actions.length; x++) {
-    
-    
-        var action = this.actions[x];
-        this[action]();
-    
-    
-    }
-
-};
-
-
-
-Particle.prototype.animateTo = function(newX, newY) {
-
-    var step;
-	var duration = this.duration;
-
-    var animatePosition = function(newPosition, currentPosition) {
-
-        if (newPosition > currentPosition) {
-
-            step = (newPosition - currentPosition) / duration;
-            newPosition = currentPosition + step;
-
-        } else {
-
-            step = (currentPosition - newPosition) / duration;
-            newPosition = currentPosition - step;
-
-        }
-
-        return newPosition;
-
-    };
-
-    this.positionX = animatePosition(newX, this.positionX);
-    this.positionY = animatePosition(newY, this.positionY);
-
-
-
-    // generate new vector
-
-    if (this.timer == this.duration) {
-
-        this.calculateVector();
-        this.timer = 0;
-
-    } else {
-
-        this.timer++;
-
-    }
-
-
-};
-
-Particle.prototype.updateColor = function() {
-
-    this.color = "rgba(" + this.red + "," + this.green + "," + this.blue + "," + this.opacity + ")";
-
-};
-
 // ----------------------------------------------------
 // Fading //
 //-----------------------------------------------------
@@ -476,6 +377,104 @@ Particle.prototype.fadeOut = function(){
     
     
     this.fadeTo(0);
+
+};
+
+
+// ----------------------------------------------------
+// Particle constructor function //
+//-----------------------------------------------------
+function Particle (positionX, positionY) {
+
+    this.positionX = positionX;
+    this.positionY = positionY;
+    this.initialPositionX = positionX;
+    this.initialPositionY = positionY;
+   
+}
+
+// ----------------------------------------------------
+// Mouse Object constructor function //
+//-----------------------------------------------------
+function Mouse (positionX, positionY, size, red, green, blue, opacity) {
+
+    this.positionX = mousePositionX;
+    this.positionY = mousePositionY;
+    this.size = size;
+
+    this.red = red;
+    this.green = green;
+    this.blue = blue;
+    this.opacity = opacity;
+
+
+    this.color = "rgba(" + this.red + "," + this.green + "," + this.blue + ",+" + this.opacity + ")";
+
+}
+
+
+Particle.prototype.doActions = function(){
+
+    for (var x=0; x<this.actions.length; x++) {
+    
+    
+        var action = this.actions[x];
+        this[action]();
+    
+    
+    }
+
+};
+
+
+
+Particle.prototype.animateTo = function(newX, newY) {
+
+    var step;
+	var duration = this.duration;
+
+    var animatePosition = function(newPosition, currentPosition) {
+
+        if (newPosition > currentPosition) {
+
+            step = (newPosition - currentPosition) / duration;
+            newPosition = currentPosition + step;
+
+        } else {
+
+            step = (currentPosition - newPosition) / duration;
+            newPosition = currentPosition - step;
+
+        }
+
+        return newPosition;
+
+    };
+
+    this.positionX = animatePosition(newX, this.positionX);
+    this.positionY = animatePosition(newY, this.positionY);
+
+
+
+    // generate new vector
+
+    if (this.timer == this.duration) {
+
+        this.calculateVector();
+        this.timer = 0;
+
+    } else {
+
+        this.timer++;
+
+    }
+
+
+};
+
+Particle.prototype.updateColor = function() {
+
+    this.color = "rgba(" + this.red + "," + this.green + "," + this.blue + "," + this.opacity + ")";
 
 };
 
@@ -589,12 +588,11 @@ Particle.prototype.calculateVector = function() {
 };
 
 
-
 // ----------------------------------------------------
 // Test interaction //
 //-----------------------------------------------------
 // Brute-force method to test interactions between particles
-// We are are starting loop from particle.index value to avoid double tests between particles.
+// We are are starting loop from particle.index value to avoid double tests.
 
 Particle.prototype.testInteraction = function() {
 
@@ -742,7 +740,6 @@ Mouse.prototype.updateAnimation = function() {
     
 
 };
-
 
 // ----------------------------------------------------
 // Emitters //
@@ -960,30 +957,6 @@ var updateScene = function() {
 };
 
 
-canvas.onmousemove = function(e){
-   
-    mousePositionX = e.clientX - container.offsetLeft + window.pageXOffset;
-    mousePositionY = e.clientY - container.offsetTop + window.pageYOffset;
-    
-
-};
-
-
-var clearCanvas = function() {
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-
-};
-
-var stopAnimation = function(){
-
-
-  window.cancelAnimationFrame(window.particleEngine["animation"+id]);
-  isRunning = false;
-
-};
-
 // ----------------------------------------------------
 // Create background //
 //-----------------------------------------------------
@@ -1036,7 +1009,6 @@ var createBackgroundImage = function(){
     
 
 }
-
 
 // ----------------------------------------------------
 // FPS //
@@ -1098,6 +1070,30 @@ function requestStatistics() {
     
    
 }
+
+canvas.onmousemove = function(e){
+   
+    mousePositionX = e.clientX - container.offsetLeft + window.pageXOffset;
+    mousePositionY = e.clientY - container.offsetTop + window.pageYOffset;
+    
+
+};
+
+
+var clearCanvas = function() {
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+
+};
+
+var stopAnimation = function(){
+
+
+  window.cancelAnimationFrame(window.particleEngine["animation"+id]);
+  isRunning = false;
+
+};
 
 
 
