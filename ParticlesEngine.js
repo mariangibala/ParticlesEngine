@@ -32,7 +32,7 @@ SOFTWARE.
 
 
 
-(function(window){
+!(function(window){
     
     
 generateParticles = function (id, userOptions) {
