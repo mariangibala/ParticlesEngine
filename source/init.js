@@ -29,25 +29,15 @@ var initAnimation = function(){
 	// create window.resize listener for current animation
 	window.particleEngine.resizeHandler["animation"+id] = function(){initAnimation()} // new handler
 	window.addEventListener("resize",window.particleEngine.resizeHandler["animation"+id],false)
-     
 
-    extendOptions(options,userOptions)
-        
-    canvas.width = container.clientWidth ;
+ 	
+	canvas.width = container.clientWidth ;
     canvas.height = container.clientHeight ;
 	
+	
+	createBackground(options.backgroundMode);
+   
 
-    
-    if (options.backgroundMode === "gradient") { 
-
-    	createBackgroundGradient();
-
-    } else if (options.backgroundMode === "image") {
-    
-        createBackgroundImage();
-    
-    }
-    
     maximumPossibleDistance = Math.round(Math.sqrt((canvas.width * canvas.width) + (canvas.height * canvas.height)));  
     
     centerX = Math.floor( canvas.width / 2 );
@@ -56,6 +46,7 @@ var initAnimation = function(){
     objects.length = 0;
     emitterPositions.length = 0;
    	
+	
 	createScene();
     loop();
 

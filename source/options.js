@@ -36,7 +36,7 @@ var options = {
     particleMaximumOpacity:0.9,
     
     // connections between particles
-    drawConnections: true,
+    drawConnections: false,
     connectionRed:255,
     connectionGreen:255,
     connectionBlue:255,
@@ -44,7 +44,7 @@ var options = {
     
     // mouse connections
     mouseInteraction:false,
-    mouseInteractionType:"initial", // initial, gravity
+    mouseInteractionType:"gravity", // initial, gravity
 	
 	
     drawMouseConnections:false,
@@ -84,3 +84,5 @@ var extendOptions = function(options, userOptions){
     
     return options;
 }
+
+extendOptions(options,userOptions)

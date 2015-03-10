@@ -23,8 +23,10 @@ if (container === null) return console.error("ParticlesEngine Error - Container 
 var canvas = document.createElement("canvas");
     canvas.id = "particles_" + id;
     canvas.style.display = "block";
+	canvas.style.position = "absolute";
 
 container.innerHTML = "";
+container.style.overflow = "hidden";
 container.appendChild(canvas);
 
 
@@ -46,4 +48,4 @@ var isRunning;
 var lines = 0;
 var objects = [];
 
-var emitterPositions = []
+var emitterPositions = [];

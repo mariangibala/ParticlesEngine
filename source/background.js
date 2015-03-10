@@ -1,52 +1,66 @@
 // ----------------------------------------------------
-// Create background //
+// Create canvas background //
 //-----------------------------------------------------
+var createBackground = function(type){
+	
+
+	if (type === "gradient") { 
+	
+		createBackgroundGradient();
+	
+	} else if (type === "image") {
+	
+		createBackgroundImage();
+	
+	} 
+
+}
+
 
 var createBackgroundGradient = function(){
 
-    var finalValue = "";
-    var fallbackColor;
-    
-    for ( var property in options.backgroundColors) {
-    
-         if (typeof fallbackColor == "undefined" ) fallbackColor = options.backgroundColors[property].color;
-         
-         // loop only throught own propeties
-         if (options.backgroundColors.hasOwnProperty(property)) {
-            
-            // generate CSS code
-          
-            finalValue += "radial-gradient(circle at " + 
-			
-				options.backgroundColors[property].positionX + "% " + 
-				options.backgroundColors[property].positionY + "%, #" + 
-				options.backgroundColors[property].color + 
-				
-				", transparent 100%),"  
-  
-          }
+	var canvasBg
+	
+	// if background doesen't exist create it
+	if ( document.getElementById("particles_" + id + "_background") === null) {
+	
+		canvasBg = document.createElement("canvas");
+		canvasBg.id = "particles_" + id + "_background";
+		canvasBg.style.display = "block";
+		canvasBg.style.position = "absolute";
+		
+		container.insertBefore(canvasBg, canvas);
 
-    }
-    
-    // remove last comma ","
-    finalValue = finalValue.slice(0,-1)
-    
-    
-    
-    container.style.background = "#" + fallbackColor;
-    container.style.backgroundImage = finalValue;
-    
+	
+	// otherwise grab id and create reference
+	} else {
+	
+		canvasBg = document.getElementById("particles_" + id + "_background");
+	
+	}
 
-}
+	canvasBg.width = canvas.width;
+    canvasBg.height = canvas.height;
+	
+	var background = canvasBg.getContext("2d");
+	
+	// Clear current background
+	background.clearRect(0, 0, canvasBg.width, canvasBg.height);
+	
+	
+	// Create new background
+	var grd = background.createRadialGradient(500,500,5,90,60,900);
+	grd.addColorStop(0,"red");
+	grd.addColorStop(1,"#000");
+	
+	// Fill with gradient
+	background.fillStyle = grd;
+	background.fillRect(0, 0, canvasBg.width, canvasBg.height);
+
+
+};
 
 var createBackgroundImage = function(){
 
-   
-   
-    container.style.backgroundImage = "url(img/wallpaper.jpg)";
-    container.style.backgroundPosition = "center center";
-    container.style.backgroundSize = "cover";
 
-    
-
-}
+};
