@@ -61,12 +61,12 @@ var options = {
     
     // Use object with property names, to easy identify values in color picker
 
+	backgroundSolid: {r:0,g:0,b:0},
 	backgroundColors: {
-
-		"color1": {positionX:20,positionY:60,color:"9c1f8f"},
-		"color2": {positionX:97,positionY:70,color:"000c91"},
-		"color3": {positionX:50,positionY:50,color:"ed68ed"}
-
+		
+		"color1": 	{positionX:0,positionY:0,r:240,g:30,b:2,radious:100},
+		"color2": 	{positionX:100,positionY:100,r:33,g:30,b:70,radious:100}
+		
 	}
     
 }

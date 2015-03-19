@@ -24,6 +24,7 @@ var canvas = document.createElement("canvas");
     canvas.id = "particles_" + id;
     canvas.style.display = "block";
 	canvas.style.position = "absolute";
+	
 
 container.innerHTML = "";
 container.style.overflow = "hidden";

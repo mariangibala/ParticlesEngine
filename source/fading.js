@@ -1,6 +1,6 @@
 
 // ----------------------------------------------------
-// Fading //
+// Fading    //
 //-----------------------------------------------------
 // helper function do not use without facade
 Particle.prototype.fadeTo = function(value){

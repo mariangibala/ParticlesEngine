@@ -34,14 +34,12 @@ var initAnimation = function(){
 	canvas.width = container.clientWidth ;
     canvas.height = container.clientHeight ;
 	
-	
-	createBackground(options.backgroundMode);
-   
+	centerX = Math.floor( canvas.width / 2 );
+    centerY = Math.floor( canvas.height / 2 );
 
     maximumPossibleDistance = Math.round(Math.sqrt((canvas.width * canvas.width) + (canvas.height * canvas.height)));  
     
-    centerX = Math.floor( canvas.width / 2 );
-    centerY = Math.floor( canvas.height / 2 );
+	createBackground(options.backgroundMode);
     
     objects.length = 0;
     emitterPositions.length = 0;
