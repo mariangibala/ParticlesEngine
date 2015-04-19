@@ -1,6 +1,6 @@
 /*********************************************************************
-Author: Marian Gibala - www.mgibala.com
-Github: https://github.com/mariangibala/Particles
+Author: Marian Gibala 
+Github: https://github.com/mariangibala/ParticlesEngine
 *********************************************************************/
 
 /*
