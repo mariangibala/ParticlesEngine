@@ -294,6 +294,9 @@ particles.Particle.prototype.updateAnimation = function() {
 
     // calculate changes
     this.animateTo(this.vectorX, this.vectorY);
+    
+    
+    this.appendGlobalForces(options.globalForceX,options.globalForceY)
   
     // draw particle
 	this.updateColor();

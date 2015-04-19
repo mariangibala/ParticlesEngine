@@ -8,6 +8,7 @@ mouse.init()
 emitter.init()
 
 fading.init()
+forces.init()
 statistics.init()
 
 

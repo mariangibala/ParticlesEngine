@@ -559,6 +559,43 @@ return fading
 
 
 // ----------------------------------------------------
+// External forces    //
+//-----------------------------------------------------
+
+var forces = (function(){
+
+var forces = {}
+
+forces.init = function(){
+
+
+particles.Particle.prototype.appendGlobalForces = function(forceX,forceY){
+
+
+    this.positionX = this.positionX + forceX;
+    
+    if (this.positionX > canvas.width) this.positionX = canvas.width;
+    if (this.positionX < 0) this.positionX = 0;
+    
+    
+     this.positionY = this.positionY + forceY;
+    
+    if (this.positionY > canvas.height) this.positionY = canvas.height;
+    if (this.positionY < 0) this.positionY = 0;
+
+
+}
+
+
+
+}
+
+return forces
+
+}());
+
+
+// ----------------------------------------------------
 // Statistics module //
 //-----------------------------------------------------
 
@@ -812,22 +849,26 @@ var options = {
    
 	emitterShape:"77",
     emitterFontSize:150,
-	emitterType:"text", // random, point, text
+	emitterType:"point", // random, point, text
     emitterPositionX:50,
     emitterPositionXpx:200,
     emitterPositionY:50,
-    particlesNumber: 700,
+    particlesNumber: 400,
     initialSize: 3,
     randomSize: true,
     minimumSize:1,
     maximumSize:3,
-    moveLimit: 10,
+    moveLimit: 25,
     durationMin: 50,
     durationMax: 200,
     
     lifeTime:true,
     lifeTimeMin:100,
-    lifeTimeMax:100,
+    lifeTimeMax:150,
+    
+    //global forces
+    globalForceX:5,
+    globalForceY:2,
     
     // particles color
     red:255,
@@ -865,12 +906,12 @@ var options = {
     
     // Use object with property names, to easy identify values in color picker
 
-	backgroundSolid: {r:0,g:0,b:0},
+	
 	backgroundColors: {
 
 
-		"color1": {positionX:50,positionY:50,color:"000000"},
-		"color2": {positionX:97,positionY:70,color:"f1f1f1"}
+		"color1": {positionX:25,positionY:25,color:"68B9F2"},
+		"color2": {positionX:60,positionY:60,color:"0000ff"}
 	
 
 	}
@@ -1188,6 +1229,9 @@ particles.Particle.prototype.updateAnimation = function() {
 
     // calculate changes
     this.animateTo(this.vectorX, this.vectorY);
+    
+    
+    this.appendGlobalForces(options.globalForceX,options.globalForceY)
   
     // draw particle
 	this.updateColor();
@@ -1232,6 +1276,7 @@ mouse.init()
 emitter.init()
 
 fading.init()
+forces.init()
 statistics.init()
 
 

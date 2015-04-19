@@ -10,22 +10,26 @@ var options = {
    
 	emitterShape:"77",
     emitterFontSize:150,
-	emitterType:"text", // random, point, text
+	emitterType:"point", // random, point, text
     emitterPositionX:50,
     emitterPositionXpx:200,
     emitterPositionY:50,
-    particlesNumber: 700,
+    particlesNumber: 400,
     initialSize: 3,
     randomSize: true,
     minimumSize:1,
     maximumSize:3,
-    moveLimit: 10,
+    moveLimit: 25,
     durationMin: 50,
     durationMax: 200,
     
     lifeTime:true,
     lifeTimeMin:100,
-    lifeTimeMax:100,
+    lifeTimeMax:150,
+    
+    //global forces
+    globalForceX:5,
+    globalForceY:2,
     
     // particles color
     red:255,
@@ -63,12 +67,12 @@ var options = {
     
     // Use object with property names, to easy identify values in color picker
 
-	backgroundSolid: {r:0,g:0,b:0},
+	
 	backgroundColors: {
 
 
-		"color1": {positionX:50,positionY:50,color:"000000"},
-		"color2": {positionX:97,positionY:70,color:"f1f1f1"}
+		"color1": {positionX:25,positionY:25,color:"68B9F2"},
+		"color2": {positionX:60,positionY:60,color:"0000ff"}
 	
 
 	}
