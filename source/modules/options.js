@@ -10,7 +10,7 @@ var options = {
    
 	emitterShape:"77",
     emitterFontSize:150,
-	emitterType:"point", // random, point, text
+	emitterType:"random", // random, point, text
     emitterPositionX:50,
     emitterPositionXpx:200,
     emitterPositionY:50,
@@ -19,7 +19,7 @@ var options = {
     randomSize: true,
     minimumSize:1,
     maximumSize:3,
-    moveLimit: 25,
+    moveLimit: 50,
     durationMin: 50,
     durationMax: 200,
     
@@ -28,8 +28,8 @@ var options = {
     lifeTimeMax:150,
     
     //global forces
-    globalForceX:5,
-    globalForceY:2,
+    globalForceX:0,
+    globalForceY:0,
     
     // particles color
     red:255,
@@ -48,7 +48,7 @@ var options = {
     connectionOpacity:0.1,
     
     // mouse connections
-    mouseInteraction:true,
+    mouseInteraction:false,
     mouseInteractionType:"gravity", // initial, gravity
 	
 	

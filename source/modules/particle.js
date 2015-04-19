@@ -34,7 +34,7 @@ particles.Particle.prototype.doActions = function(){
 
 
 
-particles.Particle.prototype.animateTo = function(newX, newY) {
+particles.Particle.prototype.calculateNewPosition = function(newX, newY) {
 
     var step;
 	var duration = this.duration;
@@ -292,11 +292,13 @@ particles.Particle.prototype.updateLifeTime = function() {
 
 particles.Particle.prototype.updateAnimation = function() {
 
-    // calculate changes
-    this.animateTo(this.vectorX, this.vectorY);
+    // calculate new position (Vector animation)
+    this.calculateNewPosition(this.vectorX, this.vectorY);
     
-    
+    // append global forces
     this.appendGlobalForces(options.globalForceX,options.globalForceY)
+     
+   
   
     // draw particle
 	this.updateColor();
@@ -307,6 +309,7 @@ particles.Particle.prototype.updateAnimation = function() {
         ctx.fillRect(this.positionX, this.positionY, this.size, this.size);
     
     } else if (options.particleType == "circle") {
+        
         ctx.beginPath();
         ctx.arc(this.positionX, this.positionY, this.size, 0, 2 * Math.PI);
         ctx.fill()

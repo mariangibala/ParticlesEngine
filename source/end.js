@@ -2,7 +2,7 @@
 // init modules
 
 basic.init()
-background.init()
+background.init() 
 particles.init()
 mouse.init()
 emitter.init()

@@ -5,9 +5,14 @@
 var background = (function(){
 
 var background = {};
+
 background.init = function(){
 
-background.create = function(type){
+// ----------------------------------------------------
+// Select background type to create //
+//-----------------------------------------------------
+
+var selectBackgroundType = function(type){
     
 
     if (type === "gradient") { 
@@ -22,9 +27,8 @@ background.create = function(type){
 
 }
 
-
 // ----------------------------------------------------
-// Create background //
+// CSS3 Radial Gradient //
 //-----------------------------------------------------
 
 var createBackgroundGradient = function(){
@@ -64,26 +68,47 @@ var createBackgroundGradient = function(){
 
 }
 
+// ----------------------------------------------------
+// Image background //
+//-----------------------------------------------------
+
+
 var createBackgroundImage = function(){
 
-   
-   
     container.style.backgroundImage = "url(img/wallpaper.jpg)";
     container.style.backgroundPosition = "center center";
     container.style.backgroundSize = "cover";
 
+}
+
+
+// ----------------------------------------------------
+// Facade function //
+//-----------------------------------------------------
+
+
+var createBackground = function(){
     
+   
+   if (options.background !== null) selectBackgroundType(options.background);
+  
+    
+}
+
+
+// ----------------------------------------------------
+// Subscribe init event //
+//-----------------------------------------------------
+
+
+eventBus.subscribe("init", createBackground)
+
 
 }
 
 
-var createBackgroundImage = function(){
-
-
-};
-
-}
 
 return background
+
 
 }());

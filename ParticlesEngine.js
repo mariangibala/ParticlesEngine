@@ -50,7 +50,6 @@ var requestAnimationFrame = window.requestAnimationFrame || function(callback) {
    
     return setTimeout(callback,1000/60)
 };
-    
 
 
 // ----------------------------------------------------
@@ -92,6 +91,37 @@ var objects = [];
 var emitterPositions = [];
 var modules = [];
 
+// ----------------------------------------------------
+// Sub/Pub pattern to emit events //
+//-----------------------------------------------------
+
+var eventBus = {}
+eventBus.events = {}
+
+eventBus.emit = function(eventName, data){
+
+
+   if (!this.events[eventName] || this.events[eventName].length < 1) return;
+
+        this.events[eventName].forEach(function(listener){
+            
+                listener(data || {});
+            
+        });
+
+
+};
+
+eventBus.subscribe = function(eventName, listener){
+
+
+   if (!this.events[eventName] ) this.events[eventName] = [];
+
+   this.events[eventName].push(listener)
+
+
+};
+
 
 // ----------------------------------------------------
 // Init function //
@@ -129,7 +159,7 @@ var initAnimation = function(){
     canvas.height = container.clientHeight ;
 	
 	
-	if (options.background !== null) background.create(options.background);
+	
    
 
     maximumPossibleDistance = Math.round(Math.sqrt((canvas.width * canvas.width) + (canvas.height * canvas.height)));  
@@ -140,6 +170,8 @@ var initAnimation = function(){
     objects.length = 0;
     emitterPositions.length = 0;
    	
+    eventBus.emit("init")
+    
 	
 	emitter.createScene();
     loop();
@@ -153,9 +185,14 @@ var initAnimation = function(){
 var background = (function(){
 
 var background = {};
+
 background.init = function(){
 
-background.create = function(type){
+// ----------------------------------------------------
+// Select background type to create //
+//-----------------------------------------------------
+
+var selectBackgroundType = function(type){
     
 
     if (type === "gradient") { 
@@ -170,9 +207,8 @@ background.create = function(type){
 
 }
 
-
 // ----------------------------------------------------
-// Create background //
+// CSS3 Radial Gradient //
 //-----------------------------------------------------
 
 var createBackgroundGradient = function(){
@@ -212,27 +248,48 @@ var createBackgroundGradient = function(){
 
 }
 
+// ----------------------------------------------------
+// Image background //
+//-----------------------------------------------------
+
+
 var createBackgroundImage = function(){
 
-   
-   
     container.style.backgroundImage = "url(img/wallpaper.jpg)";
     container.style.backgroundPosition = "center center";
     container.style.backgroundSize = "cover";
 
+}
+
+
+// ----------------------------------------------------
+// Facade function //
+//-----------------------------------------------------
+
+
+var createBackground = function(){
     
+   
+   if (options.background !== null) selectBackgroundType(options.background);
+  
+    
+}
+
+
+// ----------------------------------------------------
+// Subscribe init event //
+//-----------------------------------------------------
+
+
+eventBus.subscribe("init", createBackground)
+
 
 }
 
 
-var createBackgroundImage = function(){
-
-
-};
-
-}
 
 return background
+
 
 }());
  // ----------------------------------------------------
@@ -849,7 +906,7 @@ var options = {
    
 	emitterShape:"77",
     emitterFontSize:150,
-	emitterType:"point", // random, point, text
+	emitterType:"random", // random, point, text
     emitterPositionX:50,
     emitterPositionXpx:200,
     emitterPositionY:50,
@@ -858,7 +915,7 @@ var options = {
     randomSize: true,
     minimumSize:1,
     maximumSize:3,
-    moveLimit: 25,
+    moveLimit: 50,
     durationMin: 50,
     durationMax: 200,
     
@@ -867,8 +924,8 @@ var options = {
     lifeTimeMax:150,
     
     //global forces
-    globalForceX:5,
-    globalForceY:2,
+    globalForceX:0,
+    globalForceY:0,
     
     // particles color
     red:255,
@@ -887,7 +944,7 @@ var options = {
     connectionOpacity:0.1,
     
     // mouse connections
-    mouseInteraction:true,
+    mouseInteraction:false,
     mouseInteractionType:"gravity", // initial, gravity
 	
 	
@@ -935,6 +992,32 @@ var extendOptions = function(options, userOptions){
 extendOptions(options,userOptions)
 
 // ----------------------------------------------------
+// Mouse interaction constructor function //
+//-----------------------------------------------------
+var parallax = (function(){
+
+var parallax = {};
+parallax.init = function(){
+
+
+
+particles.Particle.prototype.appendParallax = function(){
+
+  
+    
+
+
+}
+
+
+}
+
+return parallax
+
+}());
+
+
+// ----------------------------------------------------
 // Particle constructor function //
 //-----------------------------------------------------
 var particles = (function(){
@@ -969,7 +1052,7 @@ particles.Particle.prototype.doActions = function(){
 
 
 
-particles.Particle.prototype.animateTo = function(newX, newY) {
+particles.Particle.prototype.calculateNewPosition = function(newX, newY) {
 
     var step;
 	var duration = this.duration;
@@ -1227,11 +1310,13 @@ particles.Particle.prototype.updateLifeTime = function() {
 
 particles.Particle.prototype.updateAnimation = function() {
 
-    // calculate changes
-    this.animateTo(this.vectorX, this.vectorY);
+    // calculate new position (Vector animation)
+    this.calculateNewPosition(this.vectorX, this.vectorY);
     
-    
+    // append global forces
     this.appendGlobalForces(options.globalForceX,options.globalForceY)
+     
+   
   
     // draw particle
 	this.updateColor();
@@ -1242,6 +1327,7 @@ particles.Particle.prototype.updateAnimation = function() {
         ctx.fillRect(this.positionX, this.positionY, this.size, this.size);
     
     } else if (options.particleType == "circle") {
+        
         ctx.beginPath();
         ctx.arc(this.positionX, this.positionY, this.size, 0, 2 * Math.PI);
         ctx.fill()
@@ -1270,7 +1356,7 @@ return particles
 // init modules
 
 basic.init()
-background.init()
+background.init() 
 particles.init()
 mouse.init()
 emitter.init()

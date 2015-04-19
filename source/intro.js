@@ -50,7 +50,6 @@ var requestAnimationFrame = window.requestAnimationFrame || function(callback) {
    
     return setTimeout(callback,1000/60)
 };
-    
 
 
 // ----------------------------------------------------
@@ -92,6 +91,37 @@ var objects = [];
 var emitterPositions = [];
 var modules = [];
 
+// ----------------------------------------------------
+// Sub/Pub pattern to emit events //
+//-----------------------------------------------------
+
+var eventBus = {}
+eventBus.events = {}
+
+eventBus.emit = function(eventName, data){
+
+
+   if (!this.events[eventName] || this.events[eventName].length < 1) return;
+
+        this.events[eventName].forEach(function(listener){
+            
+                listener(data || {});
+            
+        });
+
+
+};
+
+eventBus.subscribe = function(eventName, listener){
+
+
+   if (!this.events[eventName] ) this.events[eventName] = [];
+
+   this.events[eventName].push(listener)
+
+
+};
+
 
 // ----------------------------------------------------
 // Init function //
@@ -129,7 +159,7 @@ var initAnimation = function(){
     canvas.height = container.clientHeight ;
 	
 	
-	if (options.background !== null) background.create(options.background);
+	
    
 
     maximumPossibleDistance = Math.round(Math.sqrt((canvas.width * canvas.width) + (canvas.height * canvas.height)));  
@@ -140,6 +170,8 @@ var initAnimation = function(){
     objects.length = 0;
     emitterPositions.length = 0;
    	
+    eventBus.emit("init")
+    
 	
 	emitter.createScene();
     loop();
