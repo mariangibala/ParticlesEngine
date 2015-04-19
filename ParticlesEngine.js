@@ -462,7 +462,7 @@ return emitter
 }());
 
 // ----------------------------------------------------
-// Fading //
+// Fading    //
 //-----------------------------------------------------
 
 var fading = (function(){
@@ -865,7 +865,9 @@ var options = {
     
     // Use object with property names, to easy identify values in color picker
 
+	backgroundSolid: {r:0,g:0,b:0},
 	backgroundColors: {
+
 
 		"color1": {positionX:50,positionY:50,color:"000000"},
 		"color2": {positionX:97,positionY:70,color:"f1f1f1"}
