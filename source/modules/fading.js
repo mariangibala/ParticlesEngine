@@ -2,8 +2,15 @@
 // ----------------------------------------------------
 // Fading //
 //-----------------------------------------------------
+
+var fading = (function(){
+
+var fading = {}
+
+fading.init = function(){
+
 // helper function do not use without facade
-Particle.prototype.fadeTo = function(value){
+particles.Particle.prototype.fadeTo = function(value){
 	
     if ( this.opacity < value ) {
 	
@@ -26,7 +33,7 @@ Particle.prototype.fadeTo = function(value){
 };
 
 // Facade fadeIn
-Particle.prototype.fadeIn = function(){
+particles.Particle.prototype.fadeIn = function(){
  
     
     
@@ -53,7 +60,7 @@ Particle.prototype.fadeIn = function(){
 };
 
 // Facade FadeOut
-Particle.prototype.fadeOut = function(){
+particles.Particle.prototype.fadeOut = function(){
  
 	this.isFading = true;
     
@@ -81,3 +88,9 @@ Particle.prototype.fadeOut = function(){
     this.fadeTo(0);
 
 };
+
+}
+
+return fading
+
+}());

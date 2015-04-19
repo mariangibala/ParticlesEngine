@@ -1,15 +1,21 @@
 
 // ----------------------------------------------------
-// FPS //
+// Statistics module //
 //-----------------------------------------------------
-var lastCalledTime;
+
+var statistics = (function(){
+
+var statistics = {}
+statistics.init = function(){
+
+var lastCalledTime; 
 var fps;
 var averageFps;
 var averageFpsTemp = 0;
 var averageFpsCounter = 0;
 
 
-function requestStatistics() {
+statistics.request = function() {
 
     if (!lastCalledTime) {
 
@@ -59,3 +65,9 @@ function requestStatistics() {
     
    
 }
+
+}
+
+return statistics
+
+}());

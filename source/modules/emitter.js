@@ -1,12 +1,16 @@
-// ----------------------------------------------------
+ // ----------------------------------------------------
 // Emitters //
 //-----------------------------------------------------
 
+var emitter = (function(){
+    
+var emitter = {};
+emitter.init = function(){    
 
 var createTextEmitter = function(config){
 
 
-    var positionX = (canvas.width/100)*config.positionX
+    var positionX = (canvas.width/100)*config.positionX - config.positionXpx
     var positionY = (canvas.height/100)*config.positionY
     
     
@@ -54,10 +58,10 @@ var createTextEmitterParticles = function(config){
 		// do not create particle if there is no avalaible emitter position
 		if ( emitterPositions.length < 2 ) return;
 		
-		var randomNumber = getRandomBetween(1,emitterPositions.length-1);
+		var randomNumber = basic.getRandomBetween(1,emitterPositions.length-1);
 		var position = emitterPositions[randomNumber];
 
-		var particle = new Particle(position[0], position[1]);
+		var particle = new particles.Particle(position[0], position[1]);
 		particle.init();
 	
 		emitterPositions.splice(randomNumber,1); 
@@ -76,7 +80,7 @@ var createRandomEmitter = function(config){
         var randomX = Math.floor((Math.random() * canvas.width) + 1);
         var randomY = Math.floor((Math.random() * canvas.height) + 1);
 
-        var particle = new Particle(randomX, randomY );
+        var particle = new particles.Particle(randomX, randomY );
         particle.init()
 		
 	}
@@ -92,7 +96,7 @@ var createPointEmitter = function(config){
         var positionX = (canvas.width/100)*config.positionX
         var positionY = (canvas.height/100)*config.positionY
         
-        var particle = new Particle(positionX, positionY );
+        var particle = new particles.Particle(positionX, positionY );
         particle.init()
 		
 	}
@@ -122,10 +126,10 @@ var addEmitter = function(type, config){
 };
 
 
-var createScene = function() {
+emitter.createScene = function() {
 
     // create mouse particle
-    mouseElement = new Mouse(0, 0, options.initialSize, 255, 255, 255);
+    mouseElement = new mouse.Interaction();
  	
 	if (options.emitterType === "text") {
 	
@@ -135,7 +139,8 @@ var createScene = function() {
 			positionY:			options.emitterPositionY,
 			particlesNumber:	options.particlesNumber,
 			text:				options.emitterShape,
-            emitterFontSize:    options.emitterFontSize
+            emitterFontSize:    options.emitterFontSize,
+            positionXpx:        options.emitterPositionXpx,
 		
 		
 			});
@@ -167,7 +172,7 @@ var createScene = function() {
 };
  
 
-var updateScene = function() {
+emitter.updateScene = function() {
 
     
     // reset distance to closest element for all particles
@@ -213,3 +218,8 @@ var updateScene = function() {
 
 };
 
+}
+
+return emitter
+
+}());

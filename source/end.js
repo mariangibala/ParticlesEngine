@@ -1,3 +1,18 @@
+
+// init modules
+
+basic.init()
+background.init()
+particles.init()
+mouse.init()
+emitter.init()
+
+fading.init()
+statistics.init()
+
+
+
+
 canvas.onmousemove = function(e){
    
     mousePositionX = e.clientX - container.offsetLeft + window.pageXOffset;
@@ -31,12 +46,12 @@ var stopAnimation = function(){
 var loop = function() {
 
     clearCanvas();
-    updateScene();
+    emitter.updateScene();
 
     
     window.particleEngine["animation"+id] = requestAnimationFrame(loop);
     isRunning = true;
-    if (options.showStatistics) requestStatistics();
+    if (options.showStatistics) statistics.request();
 
 };
 

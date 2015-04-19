@@ -1,22 +1,31 @@
-
-
 // ----------------------------------------------------
 // Helper functions //
 //-----------------------------------------------------
 
-var getRandomBetween = function(a, b) {
+var basic = (function(){
+
+
+var basic = {};
+basic.init = function(){
+
+
+// returns random number
+
+basic.getRandomBetween = function(a, b) {
    
     return Math.floor(Math.random() * ( b - a + 1)) + a;
 
 };
 
 
-var getRandomDecimalBetween = function(a, b) {
+// returns decimal number
+
+basic.getRandomDecimalBetween = function(a, b) {
    
     var b = b*100;
     var a = a*100;
     
-    var randomNumber = getRandomBetween(a, b);
+    var randomNumber = this.getRandomBetween(a, b);
     var finalNumber = randomNumber/100;
     
     return finalNumber;
@@ -24,8 +33,9 @@ var getRandomDecimalBetween = function(a, b) {
 };
 
 
+// Tests if an object is inside the area of another object and returns true or false
 
-var hitTest = function(object1, object2) {
+basic.hitTest = function(object1, object2) {
 
 
     if ((object1.positionX < object2.positionX + object2.size) && (object1.positionX + object2.size > object2.positionX) &&
@@ -43,10 +53,9 @@ var hitTest = function(object1, object2) {
 
 };
 
-// Get distance between particles by using Pythagorean theorem
+// returns distance between objects, uses Pythagorean theorem to calculate value
 
-var getDistance = function(element1, element2) {
-
+basic.getDistance = function(element1, element2) {
 
     var difX = Math.round(Math.abs(element1.positionX - element2.positionX));
     var difY = Math.round(Math.abs(element1.positionY - element2.positionY));
@@ -55,3 +64,9 @@ var getDistance = function(element1, element2) {
 
 
 };
+
+}
+
+return basic
+
+}())

@@ -2,7 +2,13 @@
 // ----------------------------------------------------
 // Particle constructor function //
 //-----------------------------------------------------
-function Particle (positionX, positionY) {
+var particles = (function(){
+
+var particles = {};
+particles.init = function(){
+
+
+particles.Particle = function (positionX, positionY) {
 
     this.positionX = positionX;
     this.positionY = positionY;
@@ -11,27 +17,9 @@ function Particle (positionX, positionY) {
    
 }
 
-// ----------------------------------------------------
-// Mouse Object constructor function //
-//-----------------------------------------------------
-function Mouse (positionX, positionY, size, red, green, blue, opacity) {
-
-    this.positionX = mousePositionX;
-    this.positionY = mousePositionY;
-    this.size = size;
-
-    this.red = red;
-    this.green = green;
-    this.blue = blue;
-    this.opacity = opacity;
 
 
-    this.color = "rgba(" + this.red + "," + this.green + "," + this.blue + ",+" + this.opacity + ")";
-
-}
-
-
-Particle.prototype.doActions = function(){
+particles.Particle.prototype.doActions = function(){
 
     for (var x=0; x<this.actions.length; x++) {
     
@@ -46,7 +34,7 @@ Particle.prototype.doActions = function(){
 
 
 
-Particle.prototype.animateTo = function(newX, newY) {
+particles.Particle.prototype.animateTo = function(newX, newY) {
 
     var step;
 	var duration = this.duration;
@@ -90,13 +78,13 @@ Particle.prototype.animateTo = function(newX, newY) {
 
 };
 
-Particle.prototype.updateColor = function() {
+particles.Particle.prototype.updateColor = function() {
 
     this.color = "rgba(" + this.red + "," + this.green + "," + this.blue + "," + this.opacity + ")";
 
 };
 
-Particle.prototype.init = function(){
+particles.Particle.prototype.init = function(){
 
 	this.initOpacity();
 	this.initSize();
@@ -108,12 +96,12 @@ Particle.prototype.init = function(){
 	
 	this.color = "rgba(" + this.red + "," + this.green + "," + this.blue + "," + this.opacity + ")"
 	
-	this.duration = getRandomBetween(options.durationMin, options.durationMax);
+	this.duration = basic.getRandomBetween(options.durationMin, options.durationMax);
     this.limit = options.moveLimit;
     this.timer = 0;
 
    
-	this.lifeTime = getRandomBetween(options.lifeTimeMin,options.lifeTimeMax)
+	this.lifeTime = basic.getRandomBetween(options.lifeTimeMin,options.lifeTimeMax)
   
 	this.actions = []; // container for temporary effects
 	
@@ -128,11 +116,11 @@ Particle.prototype.init = function(){
 
 }
 
-Particle.prototype.initOpacity = function(){
+particles.Particle.prototype.initOpacity = function(){
 
 	if ( options.randomOpacity ) {
 	
-		this.opacity = getRandomDecimalBetween( options.particleMinimumOpacity, options.particleMaximumOpacity );
+		this.opacity = basic.getRandomDecimalBetween( options.particleMinimumOpacity, options.particleMaximumOpacity );
 	
 	} else {
 	
@@ -144,11 +132,11 @@ Particle.prototype.initOpacity = function(){
 
 };
 
-Particle.prototype.initSize = function(){
+particles.Particle.prototype.initSize = function(){
 
 	if ( options.randomSize ) {
 	
-		this.size = getRandomBetween( options.minimumSize, options.maximumSize );
+		this.size = basic.getRandomBetween( options.minimumSize, options.maximumSize );
 	
 	} else {
 	
@@ -161,7 +149,7 @@ Particle.prototype.initSize = function(){
 
 
 
-Particle.prototype.calculateVector = function() {
+particles.Particle.prototype.calculateVector = function() {
 
 
     var distance;
@@ -185,10 +173,10 @@ Particle.prototype.calculateVector = function() {
 		if (maxPY > canvas.height) maxPY = canvas.height;
 		if (minPY < 0) minPY = 0;
 		
-		newPosition.positionX = getRandomBetween(minPX, maxPX);
-        newPosition.positionY = getRandomBetween(minPY, maxPY);
+		newPosition.positionX = basic.getRandomBetween(minPX, maxPX);
+        newPosition.positionY = basic.getRandomBetween(minPY, maxPY);
 
-        distance = getDistance(particle, newPosition);
+        distance = basic.getDistance(particle, newPosition);
 
     };
 
@@ -212,14 +200,14 @@ Particle.prototype.calculateVector = function() {
 // Brute-force method to test interactions between particles
 // We are are starting loop from particle.index value to avoid double tests.
 
-Particle.prototype.testInteraction = function() {
+/*Particle.prototype.testInteraction = function() {
 
     for (var x = this.index+1; x < objects.length; x++) {
 
      
         var testedObject = objects[x];
      
-        var distance = getDistance(this, testedObject);
+        var distance = basic.getDistance(this, testedObject);
 
 
         if (distance < this.closestDistance) {
@@ -250,66 +238,11 @@ Particle.prototype.testInteraction = function() {
 
 };
 
-Mouse.prototype.testInteraction = function() {  
-
-    if (options.mouseInteractionDistance === 0) return;
-        
-    var closestElements = [];
-    var distanceToClosestElement = maximumPossibleDistance;
-
-    for (var x = 0; x < objects.length; x++) {
-
-        var testedObject = objects[x];
-        var distance = getDistance(this, testedObject);
+*/
 
 
-        if ((distance < options.mouseInteractionDistance) && (testedObject !== this)) {
 
-            
-            closestElements.push(objects[x]);
-
-        }
-        
-    }
-
-    
-    for (var x = 0; x < closestElements.length; x++) {
-       
-       
-        if (options.drawMouseConnections) {
-        
-            var element = closestElements[x];
-            ctx.beginPath();
-            ctx.moveTo(this.positionX, this.positionY);
-            ctx.lineTo(element.positionX + element.size * 0.5, element.positionY + element.size * 0.5);
-            ctx.strokeStyle = "rgba(" + options.mouseConnectionRed + ","+ options.mouseConnectionGreen +","+ options.mouseConnectionBlue +"," + options.mouseConnectionOpacity + ")";
-            ctx.stroke();
-            lines++ ;
-        
-        }
-        
-       if (options.mouseInteraction) {
-            
-            if (options.mouseInteractionType == "gravity") {
-				
-				closestElements[x].vectorX = this.positionX;
-            	closestElements[x].vectorY = this.positionY;
-				
-			} else if (options.mouseInteractionType == "initial"){
-
-		
-				closestElements[x].vectorX = closestElements[x].initialPositionX;
-				closestElements[x].vectorY = closestElements[x].initialPositionY;
-				
-			}
-     
-    	}
-        
-        
-    }
-};
-
-Particle.prototype.updateLifeTime = function() {
+particles.Particle.prototype.updateLifeTime = function() {
     
     this.lifeTime--;
 	
@@ -323,7 +256,7 @@ Particle.prototype.updateLifeTime = function() {
 };
 
 
-Particle.prototype.updateAnimation = function() {
+particles.Particle.prototype.updateAnimation = function() {
 
     // calculate changes
     this.animateTo(this.vectorX, this.vectorY);
@@ -348,13 +281,10 @@ Particle.prototype.updateAnimation = function() {
 
 
 
-Mouse.prototype.updateAnimation = function() {
-    
-    
-    this.positionX = mousePositionX;
-    this.positionY = mousePositionY;
 
-    this.testInteraction();
-    
 
-};
+}
+
+return particles
+
+}());

@@ -29,7 +29,7 @@ SOFTWARE.
 
 */
 
-
+  
 
 
 !(function(window){
@@ -39,94 +39,6 @@ generateParticles = function (id, userOptions) {
 
 "use strict"
 
-
-// ----------------------------------------------------
-// Defaults //
-//-----------------------------------------------------
-
-var options = {
-
-    particleType:"square", // square, text
-    particleText:"☆",
-   
-	emitterShape:":)",
-    emitterFontSize:150,
-	emitterType:"random", // random, point, text
-    emitterPositionX:50,
-    emitterPositionY:50,
-    particlesNumber: 250,
-    initialSize: 3,
-    randomSize: true,
-    minimumSize:2,
-    maximumSize:4,
-    moveLimit: 50,
-    durationMin: 10,
-    durationMax: 70,
-    
-    lifeTime:false,
-    lifeTimeMin:100,
-    lifeTimeMax:100,
-    
-    // particles color
-    red:255,
-    green:0,
-    blue:255,
-    opacity:1,
-    randomOpacity: true,
-    particleMinimumOpacity:0.1,
-    particleMaximumOpacity:0.9,
-    
-    // connections between particles
-    drawConnections: false,
-    connectionRed:255,
-    connectionGreen:255,
-    connectionBlue:255,
-    connectionOpacity:0.1,
-    
-    // mouse connections
-    mouseInteraction:false,
-    mouseInteractionType:"gravity", // initial, gravity
-	
-	
-    drawMouseConnections:false,
-    mouseInteractionDistance:300,
-    mouseConnectionRed:255,
-    mouseConnectionGreen:255,
-    mouseConnectionBlue:255,
-    mouseConnectionOpacity:0.1,
-    
-    showStatistics: true,
-	backgroundMode:"gradient", // gradient,image
-    backgroundImage:"img/wallpaper.jpg",
-	
-    
-    // Use object with property names, to easy identify values in color picker
-
-	backgroundColors: {
-
-		"color1": {positionX:20,positionY:60,color:"9c1f8f"},
-		"color2": {positionX:97,positionY:70,color:"000c91"},
-		"color3": {positionX:50,positionY:50,color:"ed68ed"}
-
-	}
-    
-}
-
-// overwrite default options
-
-var extendOptions = function(options, userOptions){
-    
-    for(var key in userOptions) {
-        
-        if(userOptions.hasOwnProperty(key))
-        options[key] = userOptions[key];
-    
-    }
-    
-    return options;
-}
-
-extendOptions(options,userOptions)
 // ----------------------------------------------------
 // Use setTimeout if there is no support for requestAnimationFrame
 //-----------------------------------------------------
@@ -178,6 +90,7 @@ var lines = 0;
 var objects = [];
 
 var emitterPositions = [];
+var modules = [];
 
 
 // ----------------------------------------------------
@@ -216,7 +129,7 @@ var initAnimation = function(){
     canvas.height = container.clientHeight ;
 	
 	
-	createBackground(options.backgroundMode);
+	if (options.background !== null) background.create(options.background);
    
 
     maximumPossibleDistance = Math.round(Math.sqrt((canvas.width * canvas.width) + (canvas.height * canvas.height)));  
@@ -228,523 +141,113 @@ var initAnimation = function(){
     emitterPositions.length = 0;
    	
 	
-	createScene();
+	emitter.createScene();
     loop();
 
 };
 
-
-
 // ----------------------------------------------------
-// Helper functions //
+// Background module //
 //-----------------------------------------------------
 
-var getRandomBetween = function(a, b) {
-   
-    return Math.floor(Math.random() * ( b - a + 1)) + a;
+var background = (function(){
 
-};
+var background = {};
+background.init = function(){
 
-
-var getRandomDecimalBetween = function(a, b) {
-   
-    var b = b*100;
-    var a = a*100;
+background.create = function(type){
     
-    var randomNumber = getRandomBetween(a, b);
-    var finalNumber = randomNumber/100;
+
+    if (type === "gradient") { 
     
-    return finalNumber;
-
-};
-
-
-
-var hitTest = function(object1, object2) {
-
-
-    if ((object1.positionX < object2.positionX + object2.size) && (object1.positionX + object2.size > object2.positionX) &&
-        (object1.positionY < object2.positionY + object2.size) && (object1.positionY > object2.positionY)) {
-
-        return true;
-
-
-    } else {
-
-        return false;
-
-    }
-
-
-};
-
-// Get distance between particles by using Pythagorean theorem
-
-var getDistance = function(element1, element2) {
-
-
-    var difX = Math.round(Math.abs(element1.positionX - element2.positionX));
-    var difY = Math.round(Math.abs(element1.positionY - element2.positionY));
-
-    return Math.round(Math.sqrt((difX * difX) + (difY * difY)));
-
-
-};
-
-
-// ----------------------------------------------------
-// Fading //
-//-----------------------------------------------------
-// helper function do not use without facade
-Particle.prototype.fadeTo = function(value){
-	
-    if ( this.opacity < value ) {
-	
-		
-		this.opacity = this.opacity + 0.02;	
-       
-        
-        if (this.opacity > 1) this.opacity = 1;
-		
-		
-		
-	} else if ( this.opacity > value ) {
-	
-		
-		this.opacity = this.opacity - 0.02;	
-
-    }
-	
-
-};
-
-// Facade fadeIn
-Particle.prototype.fadeIn = function(){
- 
+        createBackgroundGradient();
     
+    } else if (type === "image") {
     
-    this.active = true;
-	
-    if (this.actions.indexOf("fadeIn") == -1) {
-	
-		this.actions.push("fadeIn");
-
-	}
+        createBackgroundImage();
     
-    
- 	// Fade in to initial opacity
-    this.fadeTo(this.initialOpacity);
-    
-    // remove fading action if opacty reach initial
-      
-    if ((this.initialOpacity - this.opacity) <= 0)  this.actions.splice(this.actions.indexOf("fadeIn"),1);
-	
-	
-   
-  
-
-};
-
-// Facade FadeOut
-Particle.prototype.fadeOut = function(){
- 
-	this.isFading = true;
-    
-    if (this.actions.indexOf("fadeOut") == -1) {
-	
-		this.actions.push("fadeOut");
-
-	}
-	
-	// 0.05 is safe value to prevent negative opacity 
-    if (this.opacity < 0.05) {
-
-		this.opacity = 0;
-      
-   
-        // deactivate particle, remove from particles array
-		this.isFading = false;
-		this.active = false;
-        this.actions.splice(this.actions.indexOf("fadeOut"),1)
-	
-		
-	}
-    
-    
-    this.fadeTo(0);
-
-};
-
-
-// ----------------------------------------------------
-// Particle constructor function //
-//-----------------------------------------------------
-function Particle (positionX, positionY) {
-
-    this.positionX = positionX;
-    this.positionY = positionY;
-    this.initialPositionX = positionX;
-    this.initialPositionY = positionY;
-   
-}
-
-// ----------------------------------------------------
-// Mouse Object constructor function //
-//-----------------------------------------------------
-function Mouse (positionX, positionY, size, red, green, blue, opacity) {
-
-    this.positionX = mousePositionX;
-    this.positionY = mousePositionY;
-    this.size = size;
-
-    this.red = red;
-    this.green = green;
-    this.blue = blue;
-    this.opacity = opacity;
-
-
-    this.color = "rgba(" + this.red + "," + this.green + "," + this.blue + ",+" + this.opacity + ")";
+    } 
 
 }
 
 
-Particle.prototype.doActions = function(){
-
-    for (var x=0; x<this.actions.length; x++) {
-    
-    
-        var action = this.actions[x];
-        this[action]();
-    
-    
-    }
-
-};
-
-
-
-Particle.prototype.animateTo = function(newX, newY) {
-
-    var step;
-	var duration = this.duration;
-
-    var animatePosition = function(newPosition, currentPosition) {
-
-        if (newPosition > currentPosition) {
-
-            step = (newPosition - currentPosition) / duration;
-            newPosition = currentPosition + step;
-
-        } else {
-
-            step = (currentPosition - newPosition) / duration;
-            newPosition = currentPosition - step;
-
-        }
-
-        return newPosition;
-
-    };
-
-    this.positionX = animatePosition(newX, this.positionX);
-    this.positionY = animatePosition(newY, this.positionY);
-
-
-
-    // generate new vector
-
-    if (this.timer == this.duration) {
-
-        this.calculateVector();
-        this.timer = 0;
-
-    } else {
-
-        this.timer++;
-
-    }
-
-
-};
-
-Particle.prototype.updateColor = function() {
-
-    this.color = "rgba(" + this.red + "," + this.green + "," + this.blue + "," + this.opacity + ")";
-
-};
-
-Particle.prototype.init = function(){
-
-	this.initOpacity();
-	this.initSize();
-	
-	
-	this.red = options.red;
-	this.green = options.green; 
-	this.blue = options.blue;
-	
-	this.color = "rgba(" + this.red + "," + this.green + "," + this.blue + "," + this.opacity + ")"
-	
-	this.duration = getRandomBetween(options.durationMin, options.durationMax);
-    this.limit = options.moveLimit;
-    this.timer = 0;
-
-   
-	this.lifeTime = getRandomBetween(options.lifeTimeMin,options.lifeTimeMax)
-  
-	this.actions = []; // container for temporary effects
-	
-    this.calculateVector();
-		
-	this.active = true;
-    this.closestDistance = maximumPossibleDistance;
-	
-	objects.push(this);
-    this.index = objects.indexOf(this);
-
-
-}
-
-Particle.prototype.initOpacity = function(){
-
-	if ( options.randomOpacity ) {
-	
-		this.opacity = getRandomDecimalBetween( options.particleMinimumOpacity, options.particleMaximumOpacity );
-	
-	} else {
-	
-		this.opacity = options.opacity;
-	
-	}
-	
-	this.initialOpacity = this.opacity;
-
-};
-
-Particle.prototype.initSize = function(){
-
-	if ( options.randomSize ) {
-	
-		this.size = getRandomBetween( options.minimumSize, options.maximumSize );
-	
-	} else {
-	
-		this.size = options.initialSize;
-	
-	}
-
-};
-
-
-
-
-Particle.prototype.calculateVector = function() {
-
-
-    var distance;
-    var newPosition = {};
-    var particle = this;
-
-    var getCoordinates = function() {
-
-		
-		// limit coordinates to look for (distance limit)
-		
-		var minPX = particle.positionX - particle.limit;
-		var maxPX = particle.positionX + particle.limit;
-		
-		if (maxPX > canvas.width) maxPX = canvas.width;
-		if (minPX < 0) minPX = 0;
-				
-		var minPY = particle.positionY - particle.limit;
-		var maxPY = particle.positionY + particle.limit 
-		
-		if (maxPY > canvas.height) maxPY = canvas.height;
-		if (minPY < 0) minPY = 0;
-		
-		newPosition.positionX = getRandomBetween(minPX, maxPX);
-        newPosition.positionY = getRandomBetween(minPY, maxPY);
-
-        distance = getDistance(particle, newPosition);
-
-    };
-
-    while ((typeof distance === "undefined") || (distance > this.limit)) {
-
-        getCoordinates();
-
-    }
-
-
-    this.vectorX = newPosition.positionX;
-    this.vectorY = newPosition.positionY;
-
-
-};
-
-
 // ----------------------------------------------------
-// Test interaction //
+// Create background //
 //-----------------------------------------------------
-// Brute-force method to test interactions between particles
-// We are are starting loop from particle.index value to avoid double tests.
 
-Particle.prototype.testInteraction = function() {
+var createBackgroundGradient = function(){
 
-    for (var x = this.index+1; x < objects.length; x++) {
-
-     
-        var testedObject = objects[x];
-     
-        var distance = getDistance(this, testedObject);
-
-
-        if (distance < this.closestDistance) {
-
-            this.closestDistance = distance;
-            this.closestElement = testedObject;
-
-        }
-        
-        if (distance < testedObject.closestDistance ) {
-        
-            testedObject.closestDistance = distance;
-            testedObject.closestElement = this;
-        
-        }
-
-    }
-
-    if (this.closestElement) {
-
-        ctx.beginPath();
-        ctx.moveTo(this.positionX + this.size / 2, this.positionY + this.size / 2);
-        ctx.lineTo(this.closestElement.positionX + this.closestElement.size * 0.5, this.closestElement.positionY + this.closestElement.size * 0.5);
-        ctx.strokeStyle = "rgba(" + options.connectionRed + ","+ options.connectionGreen +","+ options.connectionBlue +"," + options.connectionOpacity + ")";
-        ctx.stroke();
-        lines++;
-    }
-
-};
-
-Mouse.prototype.testInteraction = function() {  
-
-    if (options.mouseInteractionDistance === 0) return;
-        
-    var closestElements = [];
-    var distanceToClosestElement = maximumPossibleDistance;
-
-    for (var x = 0; x < objects.length; x++) {
-
-        var testedObject = objects[x];
-        var distance = getDistance(this, testedObject);
-
-
-        if ((distance < options.mouseInteractionDistance) && (testedObject !== this)) {
-
+    var finalValue = "";
+    var fallbackColor;
+    
+    for ( var property in options.backgroundColors) {
+    
+         if (typeof fallbackColor == "undefined" ) fallbackColor = options.backgroundColors[property].color;
+         
+         // loop only throught own propeties
+         if (options.backgroundColors.hasOwnProperty(property)) {
             
-            closestElements.push(objects[x]);
-
-        }
-        
-    }
-
-    
-    for (var x = 0; x < closestElements.length; x++) {
-       
-       
-        if (options.drawMouseConnections) {
-        
-            var element = closestElements[x];
-            ctx.beginPath();
-            ctx.moveTo(this.positionX, this.positionY);
-            ctx.lineTo(element.positionX + element.size * 0.5, element.positionY + element.size * 0.5);
-            ctx.strokeStyle = "rgba(" + options.mouseConnectionRed + ","+ options.mouseConnectionGreen +","+ options.mouseConnectionBlue +"," + options.mouseConnectionOpacity + ")";
-            ctx.stroke();
-            lines++ ;
-        
-        }
-        
-       if (options.mouseInteraction) {
+            // generate CSS code
+          
+            finalValue += "radial-gradient(circle at " + 
             
-            if (options.mouseInteractionType == "gravity") {
-				
-				closestElements[x].vectorX = this.positionX;
-            	closestElements[x].vectorY = this.positionY;
-				
-			} else if (options.mouseInteractionType == "initial"){
-
-		
-				closestElements[x].vectorX = closestElements[x].initialPositionX;
-				closestElements[x].vectorY = closestElements[x].initialPositionY;
-				
-			}
-     
-    	}
-        
-        
-    }
-};
-
-Particle.prototype.updateLifeTime = function() {
-    
-    this.lifeTime--;
-	
-	if ( this.lifeTime < 0 )  {
-      
-        this.fadeOut()
-       
-
-	}
-
-};
-
-
-Particle.prototype.updateAnimation = function() {
-
-    // calculate changes
-    this.animateTo(this.vectorX, this.vectorY);
+                options.backgroundColors[property].positionX + "% " + 
+                options.backgroundColors[property].positionY + "%, #" + 
+                options.backgroundColors[property].color + 
+                
+                ", transparent 100%),"  
   
-    // draw particle
-	this.updateColor();
-    ctx.fillStyle = this.color;
-   
-    if (options.particleType == "square") {
-        
-        
-        ctx.fillRect(this.positionX, this.positionY, this.size, this.size);
-    
-    } else if (options.particleType == "text") {
-    
-        ctx.font = this.size + "px Verdana"
-        ctx.fillText(options.particleText, this.positionX, this.positionY)
+          }
+
     }
+    
+    // remove last comma ","
+    finalValue = finalValue.slice(0,-1)
+    
+    
+    
+    container.style.background = "#" + fallbackColor;
+    container.style.backgroundImage = finalValue;
+    
+
+}
+
+var createBackgroundImage = function(){
+
    
+   
+    container.style.backgroundImage = "url(img/wallpaper.jpg)";
+    container.style.backgroundPosition = "center center";
+    container.style.backgroundSize = "cover";
+
+    
+
+}
+
+
+var createBackgroundImage = function(){
+
 
 };
 
+}
 
+return background
 
-Mouse.prototype.updateAnimation = function() {
-    
-    
-    this.positionX = mousePositionX;
-    this.positionY = mousePositionY;
-
-    this.testInteraction();
-    
-
-};
-
-// ----------------------------------------------------
+}());
+ // ----------------------------------------------------
 // Emitters //
 //-----------------------------------------------------
 
+var emitter = (function(){
+    
+var emitter = {};
+emitter.init = function(){    
 
 var createTextEmitter = function(config){
 
 
-    var positionX = (canvas.width/100)*config.positionX
+    var positionX = (canvas.width/100)*config.positionX - config.positionXpx
     var positionY = (canvas.height/100)*config.positionY
     
     
@@ -792,10 +295,10 @@ var createTextEmitterParticles = function(config){
 		// do not create particle if there is no avalaible emitter position
 		if ( emitterPositions.length < 2 ) return;
 		
-		var randomNumber = getRandomBetween(1,emitterPositions.length-1);
+		var randomNumber = basic.getRandomBetween(1,emitterPositions.length-1);
 		var position = emitterPositions[randomNumber];
 
-		var particle = new Particle(position[0], position[1]);
+		var particle = new particles.Particle(position[0], position[1]);
 		particle.init();
 	
 		emitterPositions.splice(randomNumber,1); 
@@ -814,7 +317,7 @@ var createRandomEmitter = function(config){
         var randomX = Math.floor((Math.random() * canvas.width) + 1);
         var randomY = Math.floor((Math.random() * canvas.height) + 1);
 
-        var particle = new Particle(randomX, randomY );
+        var particle = new particles.Particle(randomX, randomY );
         particle.init()
 		
 	}
@@ -830,7 +333,7 @@ var createPointEmitter = function(config){
         var positionX = (canvas.width/100)*config.positionX
         var positionY = (canvas.height/100)*config.positionY
         
-        var particle = new Particle(positionX, positionY );
+        var particle = new particles.Particle(positionX, positionY );
         particle.init()
 		
 	}
@@ -860,10 +363,10 @@ var addEmitter = function(type, config){
 };
 
 
-var createScene = function() {
+emitter.createScene = function() {
 
     // create mouse particle
-    mouseElement = new Mouse(0, 0, options.initialSize, 255, 255, 255);
+    mouseElement = new mouse.Interaction();
  	
 	if (options.emitterType === "text") {
 	
@@ -873,7 +376,8 @@ var createScene = function() {
 			positionY:			options.emitterPositionY,
 			particlesNumber:	options.particlesNumber,
 			text:				options.emitterShape,
-            emitterFontSize:    options.emitterFontSize
+            emitterFontSize:    options.emitterFontSize,
+            positionXpx:        options.emitterPositionXpx,
 		
 		
 			});
@@ -905,7 +409,7 @@ var createScene = function() {
 };
  
 
-var updateScene = function() {
+emitter.updateScene = function() {
 
     
     // reset distance to closest element for all particles
@@ -951,85 +455,126 @@ var updateScene = function() {
 
 };
 
+}
+
+return emitter
+
+}());
 
 // ----------------------------------------------------
-// Create canvas background //
+// Fading //
 //-----------------------------------------------------
-var createBackground = function(type){
+
+var fading = (function(){
+
+var fading = {}
+
+fading.init = function(){
+
+// helper function do not use without facade
+particles.Particle.prototype.fadeTo = function(value){
+	
+    if ( this.opacity < value ) {
+	
+		
+		this.opacity = this.opacity + 0.02;	
+       
+        
+        if (this.opacity > 1) this.opacity = 1;
+		
+		
+		
+	} else if ( this.opacity > value ) {
+	
+		
+		this.opacity = this.opacity - 0.02;	
+
+    }
 	
 
-	if (type === "gradient") { 
+};
+
+// Facade fadeIn
+particles.Particle.prototype.fadeIn = function(){
+ 
+    
+    
+    this.active = true;
 	
-		createBackgroundGradient();
+    if (this.actions.indexOf("fadeIn") == -1) {
 	
-	} else if (type === "image") {
+		this.actions.push("fadeIn");
+
+	}
+    
+    
+ 	// Fade in to initial opacity
+    this.fadeTo(this.initialOpacity);
+    
+    // remove fading action if opacty reach initial
+      
+    if ((this.initialOpacity - this.opacity) <= 0)  this.actions.splice(this.actions.indexOf("fadeIn"),1);
 	
-		createBackgroundImage();
 	
-	} 
+   
+  
+
+};
+
+// Facade FadeOut
+particles.Particle.prototype.fadeOut = function(){
+ 
+	this.isFading = true;
+    
+    if (this.actions.indexOf("fadeOut") == -1) {
+	
+		this.actions.push("fadeOut");
+
+	}
+	
+	// 0.05 is safe value to prevent negative opacity 
+    if (this.opacity < 0.05) {
+
+		this.opacity = 0;
+      
+   
+        // deactivate particle, remove from particles array
+		this.isFading = false;
+		this.active = false;
+        this.actions.splice(this.actions.indexOf("fadeOut"),1)
+	
+		
+	}
+    
+    
+    this.fadeTo(0);
+
+};
 
 }
 
+return fading
 
-var createBackgroundGradient = function(){
+}());
 
-	var canvasBg
-	
-	// if background doesen't exist create it
-	if ( document.getElementById("particles_" + id + "_background") === null) {
-	
-		canvasBg = document.createElement("canvas");
-		canvasBg.id = "particles_" + id + "_background";
-		canvasBg.style.display = "block";
-		canvasBg.style.position = "absolute";
-		
-		container.insertBefore(canvasBg, canvas);
-
-	
-	// otherwise grab id and create reference
-	} else {
-	
-		canvasBg = document.getElementById("particles_" + id + "_background");
-	
-	}
-
-	canvasBg.width = canvas.width;
-    canvasBg.height = canvas.height;
-	
-	var background = canvasBg.getContext("2d");
-	
-	// Clear current background
-	background.clearRect(0, 0, canvasBg.width, canvasBg.height);
-	
-	
-	// Create new background
-	var grd = background.createRadialGradient(500,500,5,90,60,900);
-	grd.addColorStop(0,"red");
-	grd.addColorStop(1,"#000");
-	
-	// Fill with gradient
-	background.fillStyle = grd;
-	background.fillRect(0, 0, canvasBg.width, canvasBg.height);
-
-
-};
-
-var createBackgroundImage = function(){
-
-
-};
 
 // ----------------------------------------------------
-// FPS //
+// Statistics module //
 //-----------------------------------------------------
-var lastCalledTime;
+
+var statistics = (function(){
+
+var statistics = {}
+statistics.init = function(){
+
+var lastCalledTime; 
 var fps;
 var averageFps;
 var averageFpsTemp = 0;
 var averageFpsCounter = 0;
 
 
-function requestStatistics() {
+statistics.request = function() {
 
     if (!lastCalledTime) {
 
@@ -1080,6 +625,577 @@ function requestStatistics() {
    
 }
 
+}
+
+return statistics
+
+}());
+
+// ----------------------------------------------------
+// Helper functions //
+//-----------------------------------------------------
+
+var basic = (function(){
+
+
+var basic = {};
+basic.init = function(){
+
+
+// returns random number
+
+basic.getRandomBetween = function(a, b) {
+   
+    return Math.floor(Math.random() * ( b - a + 1)) + a;
+
+};
+
+
+// returns decimal number
+
+basic.getRandomDecimalBetween = function(a, b) {
+   
+    var b = b*100;
+    var a = a*100;
+    
+    var randomNumber = this.getRandomBetween(a, b);
+    var finalNumber = randomNumber/100;
+    
+    return finalNumber;
+
+};
+
+
+// Tests if an object is inside the area of another object and returns true or false
+
+basic.hitTest = function(object1, object2) {
+
+
+    if ((object1.positionX < object2.positionX + object2.size) && (object1.positionX + object2.size > object2.positionX) &&
+        (object1.positionY < object2.positionY + object2.size) && (object1.positionY > object2.positionY)) {
+
+        return true;
+
+
+    } else {
+
+        return false;
+
+    }
+
+
+};
+
+// returns distance between objects, uses Pythagorean theorem to calculate value
+
+basic.getDistance = function(element1, element2) {
+
+    var difX = Math.round(Math.abs(element1.positionX - element2.positionX));
+    var difY = Math.round(Math.abs(element1.positionY - element2.positionY));
+
+    return Math.round(Math.sqrt((difX * difX) + (difY * difY)));
+
+
+};
+
+}
+
+return basic
+
+}())
+
+// ----------------------------------------------------
+// Particle constructor function //
+//-----------------------------------------------------
+var mouse = (function(){
+
+var mouse = {};
+mouse.init = function(){
+
+
+// ----------------------------------------------------
+// Mouse Object constructor function //
+//-----------------------------------------------------
+mouse.Interaction = function () {
+
+  
+}
+
+
+mouse.Interaction.prototype.testInteraction = function() {  
+
+    if (options.mouseInteractionDistance === 0) return;
+        
+    var closestElements = [];
+    var distanceToClosestElement = maximumPossibleDistance;
+
+    for (var x = 0; x < objects.length; x++) {
+
+        var testedObject = objects[x];
+        var distance = basic.getDistance(this, testedObject);
+
+
+        if ((distance < options.mouseInteractionDistance) && (testedObject !== this)) {
+
+            
+            closestElements.push(objects[x]);
+
+        }
+        
+    }
+
+    
+    for (var x = 0; x < closestElements.length; x++) {
+       
+       
+        if (options.drawMouseConnections) {
+        
+            var element = closestElements[x];
+            ctx.beginPath();
+            ctx.moveTo(this.positionX, this.positionY);
+            ctx.lineTo(element.positionX + element.size * 0.5, element.positionY + element.size * 0.5);
+            ctx.strokeStyle = "rgba(" + options.mouseConnectionRed + ","+ options.mouseConnectionGreen +","+ options.mouseConnectionBlue +"," + options.mouseConnectionOpacity + ")";
+            ctx.stroke();
+            lines++ ;
+        
+        }
+        
+       if (options.mouseInteraction) {
+            
+            if (options.mouseInteractionType == "gravity") {
+				
+				closestElements[x].vectorX = this.positionX;
+            	closestElements[x].vectorY = this.positionY;
+				
+			} else if (options.mouseInteractionType == "initial"){
+
+		
+				closestElements[x].vectorX = closestElements[x].initialPositionX;
+				closestElements[x].vectorY = closestElements[x].initialPositionY;
+				
+			}
+     
+    	}
+        
+        
+    }
+};
+
+
+
+mouse.Interaction.prototype.updateAnimation = function() {
+    
+    
+    this.positionX = mousePositionX;
+    this.positionY = mousePositionY;
+
+    this.testInteraction();
+    
+
+};
+
+}
+
+return mouse
+
+}());
+
+
+// ----------------------------------------------------
+// Defaults //
+//-----------------------------------------------------
+
+var options = {
+
+    particleType:"square", // square, text
+    particleText:"☆",
+   
+	emitterShape:"CodePen",
+    emitterFontSize:150,
+	emitterType:"text", // random, point, text
+    emitterPositionX:50,
+    emitterPositionXpx:300,
+    emitterPositionY:50,
+    particlesNumber: 4000,
+    initialSize: 3,
+    randomSize: true,
+    minimumSize:2,
+    maximumSize:4,
+    moveLimit: 10,
+    durationMin: 50,
+    durationMax: 200,
+    
+    lifeTime:true,
+    lifeTimeMin:100,
+    lifeTimeMax:100,
+    
+    // particles color
+    red:255,
+    green:255,
+    blue:255, 
+    opacity:1,
+    randomOpacity: true,
+    particleMinimumOpacity:0.1,
+    particleMaximumOpacity:0.9,
+    
+    // connections between particles
+    drawConnections: false,
+    connectionRed:255,
+    connectionGreen:255,
+    connectionBlue:255,
+    connectionOpacity:0.1,
+    
+    // mouse connections
+    mouseInteraction:true,
+    mouseInteractionType:"gravity", // initial, gravity
+	
+	
+    drawMouseConnections:false,
+    mouseInteractionDistance:300,
+    mouseConnectionRed:255,
+    mouseConnectionGreen:255,
+    mouseConnectionBlue:255,
+    mouseConnectionOpacity:0.1,
+    
+    showStatistics: true,
+	background:"gradient", // null, gradient, image
+    backgroundImage:"img/wallpaper.jpg",
+    backgroundMainColor: "255,255,255",
+	
+    
+    // Use object with property names, to easy identify values in color picker
+
+	backgroundColors: {
+
+		"color1": {positionX:50,positionY:50,color:"000000"},
+		"color2": {positionX:97,positionY:70,color:"f1f1f1"}
+	
+
+	}
+    
+}
+
+// overwrite default options
+
+var extendOptions = function(options, userOptions){
+    
+    for(var key in userOptions) {
+        
+        if(userOptions.hasOwnProperty(key))
+        options[key] = userOptions[key];
+    
+    }
+    
+    return options;
+}
+
+extendOptions(options,userOptions)
+
+// ----------------------------------------------------
+// Particle constructor function //
+//-----------------------------------------------------
+var particles = (function(){
+
+var particles = {};
+particles.init = function(){
+
+
+particles.Particle = function (positionX, positionY) {
+
+    this.positionX = positionX;
+    this.positionY = positionY;
+    this.initialPositionX = positionX;
+    this.initialPositionY = positionY;
+   
+}
+
+
+
+particles.Particle.prototype.doActions = function(){
+
+    for (var x=0; x<this.actions.length; x++) {
+    
+    
+        var action = this.actions[x];
+        this[action]();
+    
+    
+    }
+
+};
+
+
+
+particles.Particle.prototype.animateTo = function(newX, newY) {
+
+    var step;
+	var duration = this.duration;
+
+    var animatePosition = function(newPosition, currentPosition) {
+
+        if (newPosition > currentPosition) {
+
+            step = (newPosition - currentPosition) / duration;
+            newPosition = currentPosition + step;
+
+        } else {
+
+            step = (currentPosition - newPosition) / duration;
+            newPosition = currentPosition - step;
+
+        }
+
+        return newPosition;
+
+    };
+
+    this.positionX = animatePosition(newX, this.positionX);
+    this.positionY = animatePosition(newY, this.positionY);
+
+
+
+    // generate new vector
+
+    if (this.timer == this.duration) {
+
+        this.calculateVector();
+        this.timer = 0;
+
+    } else {
+
+        this.timer++;
+
+    }
+
+
+};
+
+particles.Particle.prototype.updateColor = function() {
+
+    this.color = "rgba(" + this.red + "," + this.green + "," + this.blue + "," + this.opacity + ")";
+
+};
+
+particles.Particle.prototype.init = function(){
+
+	this.initOpacity();
+	this.initSize();
+	
+	
+	this.red = options.red;
+	this.green = options.green; 
+	this.blue = options.blue;
+	
+	this.color = "rgba(" + this.red + "," + this.green + "," + this.blue + "," + this.opacity + ")"
+	
+	this.duration = basic.getRandomBetween(options.durationMin, options.durationMax);
+    this.limit = options.moveLimit;
+    this.timer = 0;
+
+   
+	this.lifeTime = basic.getRandomBetween(options.lifeTimeMin,options.lifeTimeMax)
+  
+	this.actions = []; // container for temporary effects
+	
+    this.calculateVector();
+		
+	this.active = true;
+    this.closestDistance = maximumPossibleDistance;
+	
+	objects.push(this);
+    this.index = objects.indexOf(this);
+
+
+}
+
+particles.Particle.prototype.initOpacity = function(){
+
+	if ( options.randomOpacity ) {
+	
+		this.opacity = basic.getRandomDecimalBetween( options.particleMinimumOpacity, options.particleMaximumOpacity );
+	
+	} else {
+	
+		this.opacity = options.opacity;
+	
+	}
+	
+	this.initialOpacity = this.opacity;
+
+};
+
+particles.Particle.prototype.initSize = function(){
+
+	if ( options.randomSize ) {
+	
+		this.size = basic.getRandomBetween( options.minimumSize, options.maximumSize );
+	
+	} else {
+	
+		this.size = options.initialSize;
+	
+	}
+
+};
+
+
+
+
+particles.Particle.prototype.calculateVector = function() {
+
+
+    var distance;
+    var newPosition = {};
+    var particle = this;
+
+    var getCoordinates = function() {
+
+		
+		// limit coordinates to look for (distance limit)
+		
+		var minPX = particle.positionX - particle.limit;
+		var maxPX = particle.positionX + particle.limit;
+		
+		if (maxPX > canvas.width) maxPX = canvas.width;
+		if (minPX < 0) minPX = 0;
+				
+		var minPY = particle.positionY - particle.limit;
+		var maxPY = particle.positionY + particle.limit 
+		
+		if (maxPY > canvas.height) maxPY = canvas.height;
+		if (minPY < 0) minPY = 0;
+		
+		newPosition.positionX = basic.getRandomBetween(minPX, maxPX);
+        newPosition.positionY = basic.getRandomBetween(minPY, maxPY);
+
+        distance = basic.getDistance(particle, newPosition);
+
+    };
+
+    while ((typeof distance === "undefined") || (distance > this.limit)) {
+
+        getCoordinates();
+
+    }
+
+
+    this.vectorX = newPosition.positionX;
+    this.vectorY = newPosition.positionY;
+
+
+};
+
+
+// ----------------------------------------------------
+// Test interaction //
+//-----------------------------------------------------
+// Brute-force method to test interactions between particles
+// We are are starting loop from particle.index value to avoid double tests.
+
+/*Particle.prototype.testInteraction = function() {
+
+    for (var x = this.index+1; x < objects.length; x++) {
+
+     
+        var testedObject = objects[x];
+     
+        var distance = basic.getDistance(this, testedObject);
+
+
+        if (distance < this.closestDistance) {
+
+            this.closestDistance = distance;
+            this.closestElement = testedObject;
+
+        }
+        
+        if (distance < testedObject.closestDistance ) {
+        
+            testedObject.closestDistance = distance;
+            testedObject.closestElement = this;
+        
+        }
+
+    }
+
+    if (this.closestElement) {
+
+        ctx.beginPath();
+        ctx.moveTo(this.positionX + this.size / 2, this.positionY + this.size / 2);
+        ctx.lineTo(this.closestElement.positionX + this.closestElement.size * 0.5, this.closestElement.positionY + this.closestElement.size * 0.5);
+        ctx.strokeStyle = "rgba(" + options.connectionRed + ","+ options.connectionGreen +","+ options.connectionBlue +"," + options.connectionOpacity + ")";
+        ctx.stroke();
+        lines++;
+    }
+
+};
+
+*/
+
+
+
+particles.Particle.prototype.updateLifeTime = function() {
+    
+    this.lifeTime--;
+	
+	if ( this.lifeTime < 0 )  {
+      
+        this.fadeOut()
+       
+
+	}
+
+};
+
+
+particles.Particle.prototype.updateAnimation = function() {
+
+    // calculate changes
+    this.animateTo(this.vectorX, this.vectorY);
+  
+    // draw particle
+	this.updateColor();
+    ctx.fillStyle = this.color;
+   
+    if (options.particleType == "square") {
+        
+        
+        ctx.fillRect(this.positionX, this.positionY, this.size, this.size);
+    
+    } else if (options.particleType == "text") {
+    
+        ctx.font = this.size + "px Verdana"
+        ctx.fillText(options.particleText, this.positionX, this.positionY)
+    }
+   
+
+};
+
+
+
+
+
+}
+
+return particles
+
+}());
+
+
+// init modules
+
+basic.init()
+background.init()
+particles.init()
+mouse.init()
+emitter.init()
+
+fading.init()
+statistics.init()
+
+
+
+
 canvas.onmousemove = function(e){
    
     mousePositionX = e.clientX - container.offsetLeft + window.pageXOffset;
@@ -1113,12 +1229,12 @@ var stopAnimation = function(){
 var loop = function() {
 
     clearCanvas();
-    updateScene();
+    emitter.updateScene();
 
     
     window.particleEngine["animation"+id] = requestAnimationFrame(loop);
     isRunning = true;
-    if (options.showStatistics) requestStatistics();
+    if (options.showStatistics) statistics.request();
 
 };
 
