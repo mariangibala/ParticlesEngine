@@ -193,6 +193,40 @@ particles.Particle.prototype.calculateVector = function() {
 
 };
 
+particles.Particle.prototype.getCenterX = function() {
+
+    if (options.particleType == "square") {
+    
+        centerX = this.positionX + (this.size * 0.5);
+    
+    } else if (options.particleType == "circle") {
+      
+        centerX = this.positionX;
+        
+    }
+    
+    return centerX
+
+};
+
+particles.Particle.prototype.getCenterY = function() {
+
+   if (options.particleType == "square") {
+    
+        centerY = this.positionY + (this.size * 0.5);
+    
+    } else if (options.particleType == "circle") {
+      
+        centerY = this.positionY;
+        
+    }
+    
+    return centerY
+
+};
+
+
+
 
 // ----------------------------------------------------
 // Test interaction //
@@ -200,7 +234,7 @@ particles.Particle.prototype.calculateVector = function() {
 // Brute-force method to test interactions between particles
 // We are are starting loop from particle.index value to avoid double tests.
 
-/*Particle.prototype.testInteraction = function() {
+particles.Particle.prototype.testInteraction = function() {
 
     for (var x = this.index+1; x < objects.length; x++) {
 
@@ -229,8 +263,8 @@ particles.Particle.prototype.calculateVector = function() {
     if (this.closestElement) {
 
         ctx.beginPath();
-        ctx.moveTo(this.positionX + this.size / 2, this.positionY + this.size / 2);
-        ctx.lineTo(this.closestElement.positionX + this.closestElement.size * 0.5, this.closestElement.positionY + this.closestElement.size * 0.5);
+        ctx.moveTo(this.getCenterX(), this.getCenterY());
+        ctx.lineTo(this.closestElement.getCenterX(), this.closestElement.getCenterY());
         ctx.strokeStyle = "rgba(" + options.connectionRed + ","+ options.connectionGreen +","+ options.connectionBlue +"," + options.connectionOpacity + ")";
         ctx.stroke();
         lines++;
@@ -238,7 +272,7 @@ particles.Particle.prototype.calculateVector = function() {
 
 };
 
-*/
+
 
 
 
@@ -266,9 +300,14 @@ particles.Particle.prototype.updateAnimation = function() {
     ctx.fillStyle = this.color;
    
     if (options.particleType == "square") {
-        
-        
+       
         ctx.fillRect(this.positionX, this.positionY, this.size, this.size);
+    
+    } else if (options.particleType == "circle") {
+        ctx.beginPath();
+        ctx.arc(this.positionX, this.positionY, this.size, 0, 2 * Math.PI);
+        ctx.fill()
+        ctx.closePath();
     
     } else if (options.particleType == "text") {
     

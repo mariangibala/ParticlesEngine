@@ -5,20 +5,20 @@
 
 var options = {
 
-    particleType:"square", // square, text
+    particleType:"circle", // square, text, circle
     particleText:"☆",
    
-	emitterShape:"CodePen",
+	emitterShape:"77",
     emitterFontSize:150,
 	emitterType:"text", // random, point, text
     emitterPositionX:50,
-    emitterPositionXpx:300,
+    emitterPositionXpx:200,
     emitterPositionY:50,
-    particlesNumber: 4000,
+    particlesNumber: 700,
     initialSize: 3,
     randomSize: true,
-    minimumSize:2,
-    maximumSize:4,
+    minimumSize:1,
+    maximumSize:3,
     moveLimit: 10,
     durationMin: 50,
     durationMax: 200,

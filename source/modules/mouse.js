@@ -1,6 +1,6 @@
 
 // ----------------------------------------------------
-// Particle constructor function //
+// Mouse interaction constructor function //
 //-----------------------------------------------------
 var mouse = (function(){
 
