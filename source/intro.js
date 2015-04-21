@@ -80,9 +80,9 @@ var maximumPossibleDistance;
 var centerX;
 var centerY;
 
-var mousePositionX;
-var mousePositionY;
-var mouseElement;
+var mousePositionX = 0;
+var mousePositionY = 0;
+var mouseCursor;
 var isRunning;
 
 var lines = 0;

@@ -80,9 +80,9 @@ var maximumPossibleDistance;
 var centerX;
 var centerY;
 
-var mousePositionX;
-var mousePositionY;
-var mouseElement;
+var mousePositionX = 0;
+var mousePositionY = 0;
+var mouseCursor;
 var isRunning;
 
 var lines = 0;
@@ -422,9 +422,7 @@ var addEmitter = function(type, config){
 
 emitter.createScene = function() {
 
-    // create mouse particle
-    mouseElement = new mouse.Interaction();
- 	
+    	
 	if (options.emitterType === "text") {
 	
 		addEmitter("text",{
@@ -466,51 +464,6 @@ emitter.createScene = function() {
 };
  
 
-emitter.updateScene = function() {
-
-    
-    // reset distance to closest element for all particles
-    for (var x = 0; x<objects.length; x++) {
- 
-        objects[x].closestDistance = maximumPossibleDistance;
-
-    }
-
-	// reset distance to closest element
-    for (var x = 0; x<objects.length; x++) {
-		
-       	var particle = objects[x];
-		
-		particle.doActions();
-        
-        if (particle.active) {
-		
-            particle.updateAnimation();
-            if (options.drawConnections) particle.testInteraction();
-            if ( options.lifeTime ) particle.updateLifeTime();
-
-            
-        } else if ((particle.active === false) && (particle.isFading === false)) {
-        
-            particle.lifeTime = 100 //getRandomBetween(options.lifeTimeMin,options.lifeTimeMax);
-            particle.positionX = particle.initialPositionX;
-            particle.positionY = particle.initialPositionY;
-            
-            particle.calculateVector();
-            particle.timer = 0;
-            
-            
-           
-            particle.fadeIn();
- 
-        }
-
-    }
-    
-    // handle mouse 
-    mouseElement.updateAnimation();
-
-};
 
 }
 
@@ -668,7 +621,7 @@ var averageFpsTemp = 0;
 var averageFpsCounter = 0;
 
 
-statistics.request = function() {
+var requestStatistics = function() {
 
     if (!lastCalledTime) {
 
@@ -718,6 +671,13 @@ statistics.request = function() {
     
    
 }
+
+// ----------------------------------------------------
+// Subscribe request Statistics event //
+//-----------------------------------------------------
+
+
+eventBus.subscribe("requestStatistics", requestStatistics )
 
 }
 
@@ -810,10 +770,7 @@ mouse.init = function(){
 // ----------------------------------------------------
 // Mouse Object constructor function //
 //-----------------------------------------------------
-mouse.Interaction = function () {
-
-  
-}
+mouse.Interaction = function () {};
 
 
 mouse.Interaction.prototype.testInteraction = function() {  
@@ -878,7 +835,7 @@ mouse.Interaction.prototype.testInteraction = function() {
 
 
 mouse.Interaction.prototype.updateAnimation = function() {
-    
+  
     
     this.positionX = mousePositionX;
     this.positionY = mousePositionY;
@@ -887,6 +844,20 @@ mouse.Interaction.prototype.updateAnimation = function() {
     
 
 };
+
+
+// create mouse element
+var mouseCursor = new mouse.Interaction("ab");
+
+
+var refreshMouse = function(){
+
+    mouseCursor.updateAnimation();
+
+};
+
+// subscribe refresh event
+eventBus.subscribe("refreshScene", refreshMouse)
 
 }
 
@@ -944,7 +915,7 @@ var options = {
     connectionOpacity:0.1,
     
     // mouse connections
-    mouseInteraction:false,
+    mouseInteraction:true,
     mouseInteractionType:"gravity", // initial, gravity
 	
 	
@@ -1353,16 +1324,83 @@ return particles
 }());
 
 
+// ----------------------------------------------------
+// Mouse interaction constructor function //
+//-----------------------------------------------------
+var scene = (function(){
+
+var scene = {};
+scene.init = function(){
+
+
+scene.update = function() {
+
+    
+    // reset distance to closest element for all particles
+    for (var x = 0; x<objects.length; x++) {
+ 
+        objects[x].closestDistance = maximumPossibleDistance;
+
+    }
+
+	// reset distance to closest element
+    for (var x = 0; x<objects.length; x++) {
+		
+       	var particle = objects[x];
+		
+		particle.doActions();
+        
+        if (particle.active) {
+		
+            particle.updateAnimation();
+            
+            if (options.drawConnections) particle.testInteraction();
+            if ( options.lifeTime ) particle.updateLifeTime();
+
+            
+        } else if ((particle.active === false) && (particle.isFading === false)) {
+        
+            particle.lifeTime = 100 //getRandomBetween(options.lifeTimeMin,options.lifeTimeMax);
+            particle.positionX = particle.initialPositionX;
+            particle.positionY = particle.initialPositionY;
+            
+            particle.calculateVector();
+            particle.timer = 0;
+            
+            
+           
+            particle.fadeIn();
+ 
+        }
+
+    }
+    
+    eventBus.emit("refreshScene")
+
+
+};
+
+
+}
+
+return scene
+
+}());
+
+
 // init modules
 
 basic.init()
-background.init() 
+
 particles.init()
 mouse.init()
 emitter.init()
 
+scene.init()
+
 fading.init()
 forces.init()
+background.init() 
 statistics.init()
 
 
@@ -1401,12 +1439,13 @@ var stopAnimation = function(){
 var loop = function() {
 
     clearCanvas();
-    emitter.updateScene();
+    scene.update();
 
     
     window.particleEngine["animation"+id] = requestAnimationFrame(loop);
     isRunning = true;
-    if (options.showStatistics) statistics.request();
+    
+    if (options.showStatistics) eventBus.emit("requestStatistics")
 
 };
 

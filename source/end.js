@@ -2,13 +2,16 @@
 // init modules
 
 basic.init()
-background.init() 
+
 particles.init()
 mouse.init()
 emitter.init()
 
+scene.init()
+
 fading.init()
 forces.init()
+background.init() 
 statistics.init()
 
 
@@ -47,12 +50,13 @@ var stopAnimation = function(){
 var loop = function() {
 
     clearCanvas();
-    emitter.updateScene();
+    scene.update();
 
     
     window.particleEngine["animation"+id] = requestAnimationFrame(loop);
     isRunning = true;
-    if (options.showStatistics) statistics.request();
+    
+    if (options.showStatistics) eventBus.emit("requestStatistics")
 
 };
 

@@ -15,7 +15,7 @@ var averageFpsTemp = 0;
 var averageFpsCounter = 0;
 
 
-statistics.request = function() {
+var requestStatistics = function() {
 
     if (!lastCalledTime) {
 
@@ -65,6 +65,13 @@ statistics.request = function() {
     
    
 }
+
+// ----------------------------------------------------
+// Subscribe request Statistics event //
+//-----------------------------------------------------
+
+
+eventBus.subscribe("requestStatistics", requestStatistics )
 
 }
 

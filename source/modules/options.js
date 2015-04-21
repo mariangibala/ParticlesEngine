@@ -48,7 +48,7 @@ var options = {
     connectionOpacity:0.1,
     
     // mouse connections
-    mouseInteraction:false,
+    mouseInteraction:true,
     mouseInteractionType:"gravity", // initial, gravity
 	
 	

@@ -11,10 +11,7 @@ mouse.init = function(){
 // ----------------------------------------------------
 // Mouse Object constructor function //
 //-----------------------------------------------------
-mouse.Interaction = function () {
-
-  
-}
+mouse.Interaction = function () {};
 
 
 mouse.Interaction.prototype.testInteraction = function() {  
@@ -79,7 +76,7 @@ mouse.Interaction.prototype.testInteraction = function() {
 
 
 mouse.Interaction.prototype.updateAnimation = function() {
-    
+  
     
     this.positionX = mousePositionX;
     this.positionY = mousePositionY;
@@ -88,6 +85,20 @@ mouse.Interaction.prototype.updateAnimation = function() {
     
 
 };
+
+
+// create mouse element
+var mouseCursor = new mouse.Interaction("ab");
+
+
+var refreshMouse = function(){
+
+    mouseCursor.updateAnimation();
+
+};
+
+// subscribe refresh event
+eventBus.subscribe("refreshScene", refreshMouse)
 
 }
 
