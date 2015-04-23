@@ -1,178 +1,182 @@
  // ----------------------------------------------------
-// Emitters //
-//-----------------------------------------------------
+ // Emitters //
+ //-----------------------------------------------------
 
-var emitter = (function(){
-    
-var emitter = {};
-emitter.init = function(){    
+ var emitter = (function () {
 
-var createTextEmitter = function(config){
+     var emitter = {};
+     emitter.init = function () {
 
-
-    var positionX = (canvas.width/100)*config.positionX - config.positionXpx
-    var positionY = (canvas.height/100)*config.positionY
-    
-    
-    ctx.fillStyle = "#fff";
-    ctx.font = config.emitterFontSize + "px Verdana";
-    ctx.fillText( config.text, positionX, positionY );
-    
-    // scan all pixels and generate possible positions array
-	
-	var particleData = ctx.getImageData( 0 ,0 , canvas.width, canvas.height ) 
-    var data = particleData.data; 
-    
-    
-    var x = 0;
-    var y = 0;
-    
-    for (var i=0; i<data.length; i+=4) {
-        
-           x++;
-         
-         if (x == canvas.width) {
-         
-            x = 0;
-            y++;
-    
-         }
-   
-         // if pixel isnt't empty (standard transparent) then push position into emitter 
-         if (data[i] === 255) {
-          
-             emitterPositions.push([x,y])
-
-         }   
-   
-    }
-
-};
-
-var createTextEmitterParticles = function(config){
-
-	
-	
-	for (var x=0; x<config.particlesNumber; x++) {
-	 
-		// do not create particle if there is no avalaible emitter position
-		if ( emitterPositions.length < 2 ) return;
-		
-		var randomNumber = basic.getRandomBetween(1,emitterPositions.length-1);
-		var position = emitterPositions[randomNumber];
-
-		var particle = new particles.Particle(position[0], position[1]);
-		particle.init();
-	
-		emitterPositions.splice(randomNumber,1); 
-	
-	 
-	 }
+         var createTextEmitter = function (config) {
 
 
-};
+             var positionX = (canvas.width / 100) * config.positionX - config.positionXpx
+             var positionY = (canvas.height / 100) * config.positionY
 
 
-var createRandomEmitter = function(config){
+             ctx.fillStyle = "#fff";
+             ctx.font = config.emitterFontSize + "px Verdana";
+             ctx.fillText(config.text, positionX, positionY);
 
-	for (var x = 0; x < config.particlesNumber; x++) {
+             // scan all pixels and generate possible positions array
 
-        var randomX = Math.floor((Math.random() * canvas.width) + 1);
-        var randomY = Math.floor((Math.random() * canvas.height) + 1);
-
-        var particle = new particles.Particle(randomX, randomY );
-        particle.init()
-		
-	}
-
-};
+             var particleData = ctx.getImageData(0, 0, canvas.width, canvas.height)
+             var data = particleData.data;
 
 
-var createPointEmitter = function(config){
+             var x = 0;
+             var y = 0;
 
-	for (var x = 0; x < config.particlesNumber; x++) {
+             for (var i = 0; i < data.length; i += 4) {
 
-        
-        var positionX = (canvas.width/100)*config.positionX
-        var positionY = (canvas.height/100)*config.positionY
-        
-        var particle = new particles.Particle(positionX, positionY );
-        particle.init()
-		
-	}
+                 x++;
 
-};
+                 if (x == canvas.width) {
 
+                     x = 0;
+                     y++;
 
-var addEmitter = function(type, config){
+                 }
 
-	if (type === "text") {
-	
-		createTextEmitter(config)
-		createTextEmitterParticles(config)
-	
-	} else if (type === "point") {
-	
-		createPointEmitter(config)
-	
-	
-	} else if (type === "random") {
-		
-		
-		createRandomEmitter(config)
+                 // if pixel isnt't empty (standard transparent) then push position into emitter 
+                 if (data[i] === 255) {
 
-	}
+                     emitterPositions.push([x, y])
 
-};
+                 }
+
+             }
+
+         };
+
+         var createTextEmitterParticles = function (config) {
 
 
-emitter.createScene = function() {
 
-    	
-	if (options.emitterType === "text") {
-	
-		addEmitter("text",{
-		
-			positionX:			options.emitterPositionX,
-			positionY:			options.emitterPositionY,
-			particlesNumber:	options.particlesNumber,
-			text:				options.emitterShape,
-            emitterFontSize:    options.emitterFontSize,
-            positionXpx:        options.emitterPositionXpx,
-		
-		
-			});
-	
-	} else if (options.emitterType === "point") {
-	
-	
-		addEmitter("point",{
-			
-			positionX:			options.emitterPositionX,
-			positionY:			options.emitterPositionY,
-			particlesNumber:	options.particlesNumber
+             for (var x = 0; x < config.particlesNumber; x++) {
 
-			});
-	
-	
-	} else if (options.emitterType === "random") {
-	
-	
-		addEmitter("random",{
-			
-			particlesNumber:	options.particlesNumber
+                 // do not create particle if there is no avalaible emitter position
+                 if (emitterPositions.length < 2) return;
 
-			});
+                 var randomNumber = basic.getRandomBetween(1, emitterPositions.length - 1);
+                 var position = emitterPositions[randomNumber];
 
-	}
-	
-	
-};
- 
+                 var particle = new particles.Particle(position[0], position[1]);
+                 particle.init();
+
+                 emitterPositions.splice(randomNumber, 1);
 
 
-}
+             }
 
-return emitter
 
-}());
+         };
+
+
+         var createRandomEmitter = function (config) {
+
+             for (var x = 0; x < config.particlesNumber; x++) {
+
+                 var randomX = Math.floor((Math.random() * canvas.width) + 1);
+                 var randomY = Math.floor((Math.random() * canvas.height) + 1);
+
+                 var particle = new particles.Particle(randomX, randomY);
+                 particle.init()
+
+             }
+
+         };
+
+
+         var createPointEmitter = function (config) {
+
+             for (var x = 0; x < config.particlesNumber; x++) {
+
+
+                 var positionX = (canvas.width / 100) * config.positionX
+                 var positionY = (canvas.height / 100) * config.positionY
+
+                 var particle = new particles.Particle(positionX, positionY);
+                 particle.init()
+
+             }
+
+         };
+
+
+         var addEmitter = function (type, config) {
+
+             if (type === "text") {
+
+                 createTextEmitter(config)
+                 createTextEmitterParticles(config)
+
+             }
+             else if (type === "point") {
+
+                 createPointEmitter(config)
+
+
+             }
+             else if (type === "random") {
+
+
+                 createRandomEmitter(config)
+
+             }
+
+         };
+
+
+         emitter.createScene = function () {
+
+
+             if (options.emitterType === "text") {
+
+                 addEmitter("text", {
+
+                     positionX: options.emitterPositionX,
+                     positionY: options.emitterPositionY,
+                     particlesNumber: options.particlesNumber,
+                     text: options.emitterShape,
+                     emitterFontSize: options.emitterFontSize,
+                     positionXpx: options.emitterPositionXpx,
+
+
+                 });
+
+             }
+             else if (options.emitterType === "point") {
+
+
+                 addEmitter("point", {
+
+                     positionX: options.emitterPositionX,
+                     positionY: options.emitterPositionY,
+                     particlesNumber: options.particlesNumber
+
+                 });
+
+
+             }
+             else if (options.emitterType === "random") {
+
+
+                 addEmitter("random", {
+
+                     particlesNumber: options.particlesNumber
+
+                 });
+
+             }
+
+
+         };
+
+
+
+     }
+
+     return emitter
+
+ }());

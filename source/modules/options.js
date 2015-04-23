@@ -51,7 +51,7 @@ var options = {
     mouseInteractionType: "gravity", // initial, gravity
 
 
-    drawMouseConnections: false,
+    drawMouseConnections: true,
     mouseInteractionDistance: 300,
     mouseConnectionRed: 255,
     mouseConnectionGreen: 255,

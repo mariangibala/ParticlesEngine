@@ -35,151 +35,153 @@ SOFTWARE.
 !(function (window) {
 
 
-        generateParticles = function (id, userOptions) {
+generateParticles = function (id, userOptions) {
 
-                "use strict"
+"use strict"
 
-                // ----------------------------------------------------
-                // Use setTimeout if there is no support for requestAnimationFrame
-                //-----------------------------------------------------
-
-
-                var cancelAnimation = window.cancelAnimationFrame || window.clearTimeout;
-
-                var requestAnimationFrame = window.requestAnimationFrame || function (callback) {
-
-                    return setTimeout(callback, 1000 / 60)
-                };
+// ----------------------------------------------------
+// Use setTimeout if there is no support for requestAnimationFrame
+//-----------------------------------------------------
 
 
-                // ----------------------------------------------------
-                // Generate canvas element //
-                //-----------------------------------------------------
+var cancelAnimation = window.cancelAnimationFrame || window.clearTimeout;
 
-                var container = document.getElementById(id);
-                if (container === null) return console.error("ParticlesEngine Error - Container is Null");
+var requestAnimationFrame = window.requestAnimationFrame || function (callback) {
 
-
-                var canvas = document.createElement("canvas");
-                canvas.id = "particles_" + id;
-                canvas.style.display = "block";
-                canvas.style.position = "absolute";
-
-                container.innerHTML = "";
-                container.style.overflow = "hidden";
-                container.appendChild(canvas);
+    return setTimeout(callback, 1000 / 60)
+};
 
 
-                var ctx = canvas.getContext("2d");
+// ----------------------------------------------------
+// Generate canvas element //
+//-----------------------------------------------------
 
-                // ----------------------------------------------------
-                // Define local variables //
-                //-----------------------------------------------------
-
-                var maximumPossibleDistance;
-                var centerX;
-                var centerY;
-
-                var mousePositionX = 0;
-                var mousePositionY = 0;
-                var mouseCursor;
-                var isRunning;
-
-                var lines = 0;
-                var objects = [];
-
-                var emitterPositions = [];
-                var modules = [];
-
-                // ----------------------------------------------------
-                // Sub/Pub pattern to emit events //
-                //-----------------------------------------------------
-
-                var eventBus = {}
-                eventBus.events = {}
-
-                eventBus.emit = function (eventName, data) {
+var container = document.getElementById(id);
+if (container === null) return console.error("ParticlesEngine Error - Container is Null");
 
 
-                    if (!this.events[eventName] || this.events[eventName].length < 1) return;
+var canvas = document.createElement("canvas");
+canvas.id = "particles_" + id;
+canvas.style.display = "block";
+canvas.style.position = "absolute";
 
-                    this.events[eventName].forEach(function (listener) {
-
-                        listener(data || {});
-
-                    });
-
-
-                };
-
-                eventBus.subscribe = function (eventName, listener) {
+container.innerHTML = "";
+container.style.overflow = "hidden";
+container.appendChild(canvas);
 
 
-                    if (!this.events[eventName]) this.events[eventName] = [];
+var ctx = canvas.getContext("2d");
 
-                    this.events[eventName].push(listener)
+// ----------------------------------------------------
+// Define local variables //
+//-----------------------------------------------------
 
+var maximumPossibleDistance;
+var centerX;
+var centerY;
 
-                };
+var mousePositionX
+var mousePositionY
+var mouseCursor;
+var isRunning;
 
+var lines = 0;
+var objects = [];
 
-                // ----------------------------------------------------
-                // Init function //
-                //-----------------------------------------------------
+var emitterPositions = [];
+var modules = [];
 
-                var initAnimation = function () {
+// ----------------------------------------------------
+// Sub/Pub pattern to emit events //
+//-----------------------------------------------------
 
+var eventBus = {}
+eventBus.events = {}
 
-                    // ----------------------------------------------------
-                    // Handle different instances and global window.particleEngine //
-                    //-----------------------------------------------------
-
-
-                    if (typeof window.particleEngine === "undefined") {
-
-                        window.particleEngine = {};
-                        window.particleEngine.resizeHandler = {};
-
-
-                    }
-                    else if (typeof window.particleEngine["animation" + id] !== "undefined") {
-
-                        // if animation already exists - cancel animation and remove window listeners to delete connections for garbage collection
-                        cancelAnimation(window.particleEngine["animation" + id]);
-                        window.removeEventListener("resize", window.particleEngine.resizeHandler["animation" + id], false)
+eventBus.emit = function (eventName, data) {
 
 
-                    }
+    if (!this.events[eventName] || this.events[eventName].length < 1) return;
 
-                    // create window.resize listener for current animation
-                    window.particleEngine.resizeHandler["animation" + id] = function () {
-                            initAnimation()
-                        } // new handler
-                    window.addEventListener("resize", window.particleEngine.resizeHandler["animation" + id], false)
+    this.events[eventName].forEach(function (listener) {
 
+        listener(data || {});
 
-                    canvas.width = container.clientWidth;
-                    canvas.height = container.clientHeight;
+    });
 
 
+};
+
+eventBus.subscribe = function (eventName, listener) {
 
 
+    if (!this.events[eventName]) this.events[eventName] = [];
 
-                    maximumPossibleDistance = Math.round(Math.sqrt((canvas.width * canvas.width) + (canvas.height * canvas.height)));
-
-                    centerX = Math.floor(canvas.width / 2);
-                    centerY = Math.floor(canvas.height / 2);
-
-                    objects.length = 0;
-                    emitterPositions.length = 0;
-
-                    eventBus.emit("init")
+    this.events[eventName].push(listener)
 
 
-                    emitter.createScene();
-                    loop();
+};
 
-                };
+
+// ----------------------------------------------------
+// Init function //
+//-----------------------------------------------------
+
+var initAnimation = function () {
+
+
+    // ----------------------------------------------------
+    // Handle different instances and global window.particleEngine //
+    //-----------------------------------------------------
+
+
+    if (typeof window.particleEngine === "undefined") {
+
+        window.particleEngine = {};
+        window.particleEngine.resizeHandler = {};
+
+
+    }
+    else if (typeof window.particleEngine["animation" + id] !== "undefined") {
+
+        // if animation already exists - cancel animation and remove window listeners to delete connections for garbage collection
+        cancelAnimation(window.particleEngine["animation" + id]);
+        window.removeEventListener("resize", window.particleEngine.resizeHandler["animation" + id], false)
+
+
+    }
+
+    // create window.resize listener for current animation
+    window.particleEngine.resizeHandler["animation" + id] = function () {
+            
+        initAnimation();
+        
+    } 
+    
+    // new handler
+    window.addEventListener("resize", window.particleEngine.resizeHandler["animation" + id], false)
+
+
+    canvas.width = container.clientWidth;
+    canvas.height = container.clientHeight;
+
+
+    maximumPossibleDistance = Math.round(Math.sqrt((canvas.width * canvas.width) + (canvas.height * canvas.height)));
+
+    centerX = Math.floor(canvas.width / 2);
+    centerY = Math.floor(canvas.height / 2);
+
+    objects.length = 0;
+    emitterPositions.length = 0;
+
+    eventBus.emit("init")
+
+
+    emitter.createScene();
+    loop();
+
+};
+
 
 // ----------------------------------------------------
 // Background module //
@@ -778,97 +780,110 @@ var mouse = (function () {
 
 
         // ----------------------------------------------------
-        // Mouse Object constructor function //
+        // Create mouse interaction object //
         //-----------------------------------------------------
         mouse.Interaction = function () {};
+        var mouseCursor = new mouse.Interaction();
 
+        
+        
+        // Container for elements to interact 
+       
+        var interactionElements = []
 
-        mouse.Interaction.prototype.testInteraction = function () {
-
-            if (options.mouseInteractionDistance === 0) return;
-
-            var closestElements = [];
-            var distanceToClosestElement = maximumPossibleDistance;
+        
+        
+      
+        mouse.Interaction.prototype.grabElements = function () {
+        
+            interactionElements = []
 
             for (var x = 0; x < objects.length; x++) {
-
-                var testedObject = objects[x];
-                var distance = basic.getDistance(this, testedObject);
-
-
-                if ((distance < options.mouseInteractionDistance) && (testedObject !== this)) {
-
-
-                    closestElements.push(objects[x]);
-
+        
+                var object = objects[x];
+                var distanceToObject = basic.getDistance(this, object);
+        
+        
+                if (distanceToObject < options.mouseInteractionDistance) {
+        
+                    interactionElements.push(objects[x])
+                  
                 }
-
+        
             }
-
-
-            for (var x = 0; x < closestElements.length; x++) {
-
-
+            
+        };
+           
+           
+        mouse.Interaction.prototype.interact = function () {
+   
+            for (var x = 0; x < interactionElements.length; x++) {
+            
+                var object = interactionElements[x];
+               
                 if (options.drawMouseConnections) {
-
-                    var element = closestElements[x];
-                    ctx.beginPath();
-                    ctx.moveTo(this.positionX, this.positionY);
-                    ctx.lineTo(element.positionX + element.size * 0.5, element.positionY + element.size * 0.5);
-                    ctx.strokeStyle = "rgba(" + options.mouseConnectionRed + "," + options.mouseConnectionGreen + "," + options.mouseConnectionBlue + "," + options.mouseConnectionOpacity + ")";
-                    ctx.stroke();
-                    lines++;
-
+                
+                    drawLine(this, object);
+                
                 }
 
-                if (options.mouseInteraction) {
+                if (options.mouseInteractionType == "gravity") {
 
-                    if (options.mouseInteractionType == "gravity") {
+                    object.vectorX = this.positionX;
+                    object.vectorY = this.positionY;
 
-                        closestElements[x].vectorX = this.positionX;
-                        closestElements[x].vectorY = this.positionY;
-
-                    }
-                    else if (options.mouseInteractionType == "initial") {
+                } else if (options.mouseInteractionType == "initial") {
 
 
-                        closestElements[x].vectorX = closestElements[x].initialPositionX;
-                        closestElements[x].vectorY = closestElements[x].initialPositionY;
-
-                    }
+                    object.vectorX = object.initialPositionX;
+                    object.vectorY = object.initialPositionY;
 
                 }
-
 
             }
+        
+        };
+        
+
+        var drawLine = function(elementA, elementB){
+        
+            
+            var element = elementB
+            ctx.beginPath();
+            ctx.moveTo(elementA.positionX, elementA.positionY);
+            ctx.lineTo(elementB.positionX + elementB.size * 0.5, elementB.positionY + elementB.size * 0.5);
+            ctx.strokeStyle = "rgba(" + options.mouseConnectionRed + "," + options.mouseConnectionGreen + "," + options.mouseConnectionBlue + "," + options.mouseConnectionOpacity + ")";
+            ctx.stroke();
+            lines++;
+
+        
         };
 
-
-
         mouse.Interaction.prototype.updateAnimation = function () {
-
-
+                 
             this.positionX = mousePositionX;
             this.positionY = mousePositionY;
 
-            this.testInteraction();
+            this.grabElements();
+            this.interact();
 
 
         };
 
 
-        // create mouse element
-        var mouseCursor = new mouse.Interaction("ab");
-
-
-        var refreshMouse = function () {
-
+        var refreshMouseInteraction = function () {
+ 
             mouseCursor.updateAnimation();
 
         };
 
-        // subscribe refresh event
-        eventBus.subscribe("refreshScene", refreshMouse)
+        // subscribe refresh event 
+
+        if ((options.mouseInteraction) && (options.mouseInteractionDistance > 0) ) {
+
+            eventBus.subscribe("refreshScene", refreshMouseInteraction);
+        
+        }
 
     }
 
@@ -929,7 +944,7 @@ var options = {
     mouseInteractionType: "gravity", // initial, gravity
 
 
-    drawMouseConnections: false,
+    drawMouseConnections: true,
     mouseInteractionDistance: 300,
     mouseConnectionRed: 255,
     mouseConnectionGreen: 255,
