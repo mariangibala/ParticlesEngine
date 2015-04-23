@@ -29,12 +29,12 @@ SOFTWARE.
 
 */
 
-  
 
 
-!(function(window){
-    
-    
+
+!(function (window) {
+
+
 generateParticles = function (id, userOptions) {
 
 "use strict"
@@ -46,9 +46,9 @@ generateParticles = function (id, userOptions) {
 
 var cancelAnimation = window.cancelAnimationFrame || window.clearTimeout;
 
-var requestAnimationFrame = window.requestAnimationFrame || function(callback) {
-   
-    return setTimeout(callback,1000/60)
+var requestAnimationFrame = window.requestAnimationFrame || function (callback) {
+
+    return setTimeout(callback, 1000 / 60)
 };
 
 
@@ -61,9 +61,9 @@ if (container === null) return console.error("ParticlesEngine Error - Container 
 
 
 var canvas = document.createElement("canvas");
-    canvas.id = "particles_" + id;
-    canvas.style.display = "block";
-	canvas.style.position = "absolute";
+canvas.id = "particles_" + id;
+canvas.style.display = "block";
+canvas.style.position = "absolute";
 
 container.innerHTML = "";
 container.style.overflow = "hidden";
@@ -98,26 +98,26 @@ var modules = [];
 var eventBus = {}
 eventBus.events = {}
 
-eventBus.emit = function(eventName, data){
+eventBus.emit = function (eventName, data) {
 
 
-   if (!this.events[eventName] || this.events[eventName].length < 1) return;
+    if (!this.events[eventName] || this.events[eventName].length < 1) return;
 
-        this.events[eventName].forEach(function(listener){
-            
-                listener(data || {});
-            
-        });
+    this.events[eventName].forEach(function (listener) {
+
+        listener(data || {});
+
+    });
 
 
 };
 
-eventBus.subscribe = function(eventName, listener){
+eventBus.subscribe = function (eventName, listener) {
 
 
-   if (!this.events[eventName] ) this.events[eventName] = [];
+    if (!this.events[eventName]) this.events[eventName] = [];
 
-   this.events[eventName].push(listener)
+    this.events[eventName].push(listener)
 
 
 };
@@ -127,53 +127,58 @@ eventBus.subscribe = function(eventName, listener){
 // Init function //
 //-----------------------------------------------------
 
-var initAnimation = function(){
+var initAnimation = function () {
 
-   
-	// ----------------------------------------------------
-	// Handle different instances and global window.particleEngine //
-	//-----------------------------------------------------
 
-	
-	if (typeof window.particleEngine === "undefined") { 
-    
+    // ----------------------------------------------------
+    // Handle different instances and global window.particleEngine //
+    //-----------------------------------------------------
+
+
+    if (typeof window.particleEngine === "undefined") {
+
         window.particleEngine = {};
-		window.particleEngine.resizeHandler = {};
+        window.particleEngine.resizeHandler = {};
 
-        
-    } else if (typeof window.particleEngine["animation"+id] !== "undefined") {
-        
-        // if animation already exists - cancel animation and remove window listeners to delete connections for garbage collection
-        cancelAnimation(window.particleEngine["animation"+id]);
-		window.removeEventListener("resize",window.particleEngine.resizeHandler["animation"+id],false)
-		
-    
+
     }
-	
-	// create window.resize listener for current animation
-	window.particleEngine.resizeHandler["animation"+id] = function(){initAnimation()} // new handler
-	window.addEventListener("resize",window.particleEngine.resizeHandler["animation"+id],false)
+    else if (typeof window.particleEngine["animation" + id] !== "undefined") {
 
- 	
-	canvas.width = container.clientWidth ;
-    canvas.height = container.clientHeight ;
-	
-	
-	
-   
+        // if animation already exists - cancel animation and remove window listeners to delete connections for garbage collection
+        cancelAnimation(window.particleEngine["animation" + id]);
+        window.removeEventListener("resize", window.particleEngine.resizeHandler["animation" + id], false)
 
-    maximumPossibleDistance = Math.round(Math.sqrt((canvas.width * canvas.width) + (canvas.height * canvas.height)));  
+
+    }
+
+    // create window.resize listener for current animation
+    window.particleEngine.resizeHandler["animation" + id] = function () {
+            
+        initAnimation();
+        
+    } 
     
-    centerX = Math.floor( canvas.width / 2 );
-    centerY = Math.floor( canvas.height / 2 );
-    
+    // new handler
+    window.addEventListener("resize", window.particleEngine.resizeHandler["animation" + id], false)
+
+
+    canvas.width = container.clientWidth;
+    canvas.height = container.clientHeight;
+
+
+    maximumPossibleDistance = Math.round(Math.sqrt((canvas.width * canvas.width) + (canvas.height * canvas.height)));
+
+    centerX = Math.floor(canvas.width / 2);
+    centerY = Math.floor(canvas.height / 2);
+
     objects.length = 0;
     emitterPositions.length = 0;
-   	
+
     eventBus.emit("init")
-    
-	
-	emitter.createScene();
+
+
+    emitter.createScene();
     loop();
 
 };
+
