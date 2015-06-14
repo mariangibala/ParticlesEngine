@@ -14,7 +14,7 @@ var fading = (function () {
             if (this.opacity < value) {
 
 
-                this.opacity = this.opacity + 0.02;
+                this.opacity = this.opacity + 0.01;
 
 
                 if (this.opacity > 1) this.opacity = 1;
@@ -25,7 +25,7 @@ var fading = (function () {
             else if (this.opacity > value) {
 
 
-                this.opacity = this.opacity - 0.02;
+                this.opacity = this.opacity - 0.01;
 
             }
 
@@ -39,7 +39,7 @@ var fading = (function () {
 
             this.active = true;
 
-            if (this.actions.indexOf("fadeIn") == -1) {
+            if (this.actions.indexOf("fadeIn") === -1) {
 
                 this.actions.push("fadeIn");
 
@@ -63,8 +63,9 @@ var fading = (function () {
         particles.Particle.prototype.fadeOut = function () {
 
             this.isFading = true;
+          
 
-            if (this.actions.indexOf("fadeOut") == -1) {
+            if (this.actions.indexOf("fadeOut") === -1) {
 
                 this.actions.push("fadeOut");
 
@@ -80,6 +81,8 @@ var fading = (function () {
                 this.isFading = false;
                 this.active = false;
                 this.actions.splice(this.actions.indexOf("fadeOut"), 1)
+                
+                 
 
 
             }

@@ -11,7 +11,7 @@ var parallax = (function () {
         particles.Particle.prototype.appendParallax = function () {
 
 
-
+        // to do
 
 
         }

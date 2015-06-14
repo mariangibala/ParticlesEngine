@@ -54,11 +54,14 @@ var statistics = (function () {
             }
 
 
-            var activeParticles = objects.length
-
             ctx.fillStyle = "#fff";
-            ctx.font = "11px Verdana";
-            ctx.fillText("FPS: " + fps + " lines: " + lines + " Active particles: " + activeParticles + " Average FPS: " + averageFps, 10, canvas.height - 20);
+            ctx.font = "10px Verdana";
+            ctx.fillText("FPS: " + fps, 10, canvas.height - 70);
+            ctx.fillText("Average FPS: " + averageFps, 10, canvas.height - 60);
+            ctx.fillText("Active particles: " + objects.length, 10, canvas.height - 50);
+            ctx.fillText("Active emitters: " + emitters.length, 10, canvas.height - 40);
+            ctx.fillText("Connections between particles: " + lines, 10, canvas.height - 30);
+          
             lines = 0;
 
 

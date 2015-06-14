@@ -1,7 +1,8 @@
 // init modules
 
+createGlobalParticlesObject()
 basic.init()
-
+garbageCollector.init()
 particles.init()
 mouse.init()
 emitter.init()
@@ -18,8 +19,11 @@ statistics.init()
 
 canvas.onmousemove = function (e) {
 
-    mousePositionX = e.clientX - container.offsetLeft + window.pageXOffset;
-    mousePositionY = e.clientY - container.offsetTop + window.pageYOffset;
+  mousePositionX = e.clientX - container.offsetLeft + window.pageXOffset;
+  mousePositionY = e.clientY - container.offsetTop + window.pageYOffset;
+
+  particleEngine.mousePositionX = mousePositionX;
+  particleEngine.mousePositionY = mousePositionY;
 
 
 };
@@ -27,7 +31,7 @@ canvas.onmousemove = function (e) {
 
 var clearCanvas = function () {
 
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
 
 
 };
@@ -35,12 +39,12 @@ var clearCanvas = function () {
 var stopAnimation = function () {
 
 
-    window.cancelAnimationFrame(window.particleEngine["animation" + id]);
-    isRunning = false;
+  window.cancelAnimationFrame(window.particleEngine["animation" + containerId]);
+  isRunning = false;
 
 };
 
-
+window.getP = function(){console.log(objects)}
 
 // ----------------------------------------------------
 // Init! //
@@ -48,14 +52,14 @@ var stopAnimation = function () {
 
 var loop = function () {
 
-    clearCanvas();
-    scene.update();
+  clearCanvas();
+  scene.update();
 
 
-    window.particleEngine["animation" + id] = requestAnimationFrame(loop);
-    isRunning = true;
+  window.particleEngine["animation" + containerId] = requestAnimationFrame(loop);
+  isRunning = true;
 
-    if (options.showStatistics) eventBus.emit("requestStatistics")
+  if (options.showStatistics) eventBus.emit("requestStatistics")
 
 };
 

@@ -39,9 +39,9 @@ var background = (function () {
 
             for (var property in options.backgroundColors) {
 
-                if (typeof fallbackColor == "undefined") fallbackColor = options.backgroundColors[property].color;
+                if (typeof fallbackColor === "undefined") fallbackColor = options.backgroundColors[property].color;
 
-                // loop only throught own propeties
+                // loop only thorough own properties
                 if (options.backgroundColors.hasOwnProperty(property)) {
 
                     // generate CSS code

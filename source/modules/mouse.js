@@ -17,7 +17,7 @@ var mouse = (function () {
         
         // Container for elements to interact 
        
-        var interactionElements = []
+        var interactionElements = [];
 
         
         
@@ -67,24 +67,21 @@ var mouse = (function () {
                     object.vectorY = object.initialPositionY;
 
                 }
-
             }
-        
         };
         
 
         var drawLine = function(elementA, elementB){
         
-            
-            var element = elementB
             ctx.beginPath();
             ctx.moveTo(elementA.positionX, elementA.positionY);
-            ctx.lineTo(elementB.positionX + elementB.size * 0.5, elementB.positionY + elementB.size * 0.5);
-            ctx.strokeStyle = "rgba(" + options.mouseConnectionRed + "," + options.mouseConnectionGreen + "," + options.mouseConnectionBlue + "," + options.mouseConnectionOpacity + ")";
+            ctx.lineTo(elementB.getCenterX(), elementB.getCenterY());
+            ctx.strokeStyle = "rgba(" +
+                options.mouseConnectionColor.red + "," +
+                options.mouseConnectionColor.green + "," +
+                options.mouseConnectionColor.blue + "," +
+                options.mouseConnectionColor.alpha + ")";
             ctx.stroke();
-            lines++;
-
-        
         };
 
         mouse.Interaction.prototype.updateAnimation = function () {
@@ -94,8 +91,6 @@ var mouse = (function () {
 
             this.grabElements();
             this.interact();
-
-
         };
 
 

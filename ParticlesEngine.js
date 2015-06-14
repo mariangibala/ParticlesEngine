@@ -1,186 +1,181 @@
 /*********************************************************************
-Author: Marian Gibala 
-Github: https://github.com/mariangibala/ParticlesEngine
-*********************************************************************/
+ Author: Marian Gibala
+ Github: https://github.com/mariangibala/ParticlesEngine
+ *********************************************************************/
 
 /*
 
-The MIT License (MIT)
+ The MIT License (MIT)
 
-Copyright (c) 2015 Marian Gibala
+ Copyright (c) 2015 Marian Gibala
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+ The above copyright notice and this permission notice shall be included in all
+ copies or substantial portions of the Software.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ SOFTWARE.
 
-*/
-
-
+ */
 
 
-!(function (window) {
+(function (window) {
 
+  generateParticles = function (containerId) {
 
-generateParticles = function (id, userOptions) {
-
-"use strict"
+    "use strict"
 
 // ----------------------------------------------------
 // Use setTimeout if there is no support for requestAnimationFrame
 //-----------------------------------------------------
 
 
-var cancelAnimation = window.cancelAnimationFrame || window.clearTimeout;
+    var cancelAnimation = window.cancelAnimationFrame || window.clearTimeout;
 
-var requestAnimationFrame = window.requestAnimationFrame || function (callback) {
+    var requestAnimationFrame = window.requestAnimationFrame || function (callback) {
 
-    return setTimeout(callback, 1000 / 60)
-};
+        return setTimeout(callback, 1000 / 60)
+      };
 
 
 // ----------------------------------------------------
 // Generate canvas element //
 //-----------------------------------------------------
 
-var container = document.getElementById(id);
-if (container === null) return console.error("ParticlesEngine Error - Container is Null");
+    var container = document.getElementById(containerId);
+    if (container === null) return console.error("ParticlesEngine Error - Container is Null");
 
 
-var canvas = document.createElement("canvas");
-canvas.id = "particles_" + id;
-canvas.style.display = "block";
-canvas.style.position = "absolute";
+    var canvas = document.createElement("canvas");
+    canvas.id = "particles_" + containerId;
+    canvas.style.display = "block";
+    canvas.style.position = "absolute";
 
-container.innerHTML = "";
-container.style.overflow = "hidden";
-container.appendChild(canvas);
+    container.innerHTML = "";
+    container.style.overflow = "hidden";
+    container.appendChild(canvas);
 
 
-var ctx = canvas.getContext("2d");
+    var ctx = canvas.getContext("2d");
 
 // ----------------------------------------------------
 // Define local variables //
 //-----------------------------------------------------
 
-var maximumPossibleDistance;
-var centerX;
-var centerY;
+    var maximumPossibleDistance;
+    var centerX;
+    var centerY;
 
-var mousePositionX
-var mousePositionY
-var mouseCursor;
-var isRunning;
+    var mousePositionX;
+    var mousePositionY;
+    var mouseCursor;
+    var isRunning;
 
-var lines = 0;
-var objects = [];
+    var lines = 0;
+    var objects = [];
 
-var emitterPositions = [];
-var modules = [];
+    var emitters = [];
+    var modules = [];
+
+    var garbageObjects = 0;
 
 // ----------------------------------------------------
 // Sub/Pub pattern to emit events //
 //-----------------------------------------------------
 
-var eventBus = {}
-eventBus.events = {}
+    var eventBus = {}
+    eventBus.events = {}
 
-eventBus.emit = function (eventName, data) {
+    eventBus.emit = function (eventName, data) {
 
 
-    if (!this.events[eventName] || this.events[eventName].length < 1) return;
+      if (!this.events[eventName] || this.events[eventName].length < 1) return;
 
-    this.events[eventName].forEach(function (listener) {
+      this.events[eventName].forEach(function (listener) {
 
         listener(data || {});
 
-    });
+      });
+
+    };
+
+    eventBus.subscribe = function (eventName, listener) {
 
 
-};
+      if (!this.events[eventName]) this.events[eventName] = [];
 
-eventBus.subscribe = function (eventName, listener) {
+      this.events[eventName].push(listener)
 
-
-    if (!this.events[eventName]) this.events[eventName] = [];
-
-    this.events[eventName].push(listener)
-
-
-};
+    };
 
 
 // ----------------------------------------------------
 // Init function //
 //-----------------------------------------------------
 
-var initAnimation = function () {
+    var createGlobalParticlesObject = function () {
+
+      // ----------------------------------------------------
+      // Handle different instances and global window.particleEngine //
+      //-----------------------------------------------------
 
 
-    // ----------------------------------------------------
-    // Handle different instances and global window.particleEngine //
-    //-----------------------------------------------------
-
-
-    if (typeof window.particleEngine === "undefined") {
+      if (typeof window.particleEngine === "undefined") {
 
         window.particleEngine = {};
         window.particleEngine.resizeHandler = {};
 
 
-    }
-    else if (typeof window.particleEngine["animation" + id] !== "undefined") {
+      } else if (typeof window.particleEngine["animation" + containerId] !== "undefined") {
 
         // if animation already exists - cancel animation and remove window listeners to delete connections for garbage collection
-        cancelAnimation(window.particleEngine["animation" + id]);
-        window.removeEventListener("resize", window.particleEngine.resizeHandler["animation" + id], false)
+        cancelAnimation(window.particleEngine["animation" + containerId]);
+        window.removeEventListener("resize", window.particleEngine.resizeHandler["animation" + containerId], false)
 
+      }
 
-    }
+      // create window.resize listener for current animation
+      window.particleEngine.resizeHandler["animation" + containerId] = function () {
 
-    // create window.resize listener for current animation
-    window.particleEngine.resizeHandler["animation" + id] = function () {
-            
         initAnimation();
-        
-    } 
-    
-    // new handler
-    window.addEventListener("resize", window.particleEngine.resizeHandler["animation" + id], false)
 
+      }
 
-    canvas.width = container.clientWidth;
-    canvas.height = container.clientHeight;
+      // new handler
+      window.addEventListener("resize", window.particleEngine.resizeHandler["animation" + containerId], false)
 
+    };
 
-    maximumPossibleDistance = Math.round(Math.sqrt((canvas.width * canvas.width) + (canvas.height * canvas.height)));
+    var initAnimation = function(){
 
-    centerX = Math.floor(canvas.width / 2);
-    centerY = Math.floor(canvas.height / 2);
+      canvas.width = container.clientWidth;
+      canvas.height = container.clientHeight;
 
-    objects.length = 0;
-    emitterPositions.length = 0;
+      maximumPossibleDistance = Math.round(Math.sqrt((canvas.width * canvas.width) + (canvas.height * canvas.height)));
 
-    eventBus.emit("init")
+      centerX = Math.floor(canvas.width / 2);
+      centerY = Math.floor(canvas.height / 2);
 
+      objects.length = 0;
+      emitters.length = 0;
+      garbageObjects = 0;
 
-    emitter.createScene();
-    loop();
+      eventBus.emit("init")
 
-};
+      loop();
+
+    };
 
 
 // ----------------------------------------------------
@@ -224,9 +219,9 @@ var background = (function () {
 
             for (var property in options.backgroundColors) {
 
-                if (typeof fallbackColor == "undefined") fallbackColor = options.backgroundColors[property].color;
+                if (typeof fallbackColor === "undefined") fallbackColor = options.backgroundColors[property].color;
 
-                // loop only throught own propeties
+                // loop only thorough own properties
                 if (options.backgroundColors.hasOwnProperty(property)) {
 
                     // generate CSS code
@@ -308,14 +303,54 @@ var background = (function () {
      var emitter = {};
      emitter.init = function () {
 
-         var createTextEmitter = function (config) {
+         var Emitter = function(){}
+
+         Emitter.prototype.init = function(){
+
+             this.name = "emitter" + basic.getRandomBetween(1,1000);
+             this.lifeTime = 1;
+
+         }
+
+         Emitter.prototype.update = function(){
+
+             this.lifeTime--
+
+             if (this.lifeTime < 0) this.destroy();
 
 
-             var positionX = (canvas.width / 100) * config.positionX - config.positionXpx
-             var positionY = (canvas.height / 100) * config.positionY
+         }
+
+         Emitter.prototype.destroy = function(){
+
+             for (var x=0; x<objects.length; x++){
+
+                 var particle = objects[x]
+
+                 if (particle.emitter == this.name) {
+
+                     particle.destroy()
+
+                 }
+
+             }
+
+             var index = emitters.indexOf(this);
+             emitters.splice(index,1);
+
+         }
+
+         var TextEmitter = function (config) {
+
+             this.init()
+
+             this.emitterPositions = [];
+
+             var positionX = (canvas.width / 100) * config.positionX + config.positionXpx
+             var positionY = (canvas.height / 100) * config.positionY + config.positionYpx
 
 
-             ctx.fillStyle = "#fff";
+             ctx.fillStyle = "rgba(254,255,255,1)";
              ctx.font = config.emitterFontSize + "px Verdana";
              ctx.fillText(config.text, positionX, positionY);
 
@@ -339,33 +374,38 @@ var background = (function () {
 
                  }
 
-                 // if pixel isnt't empty (standard transparent) then push position into emitter 
-                 if (data[i] === 255) {
+                 // if pixel isn't empty (standard transparent) then push position into emitter
 
-                     emitterPositions.push([x, y])
+                 if (data[i] == 254) {
+
+                     this.emitterPositions.push([x, y])
 
                  }
 
              }
 
+             this.createTextEmitterParticles(config)
+
+
          };
 
-         var createTextEmitterParticles = function (config) {
+         TextEmitter.prototype = Emitter.prototype;
 
+         TextEmitter.prototype.createTextEmitterParticles = function (config) {
 
 
              for (var x = 0; x < config.particlesNumber; x++) {
 
-                 // do not create particle if there is no avalaible emitter position
-                 if (emitterPositions.length < 2) return;
+                 // do not create particle if there is no available emitter position
+                 if (this.emitterPositions.length < 2) return;
 
-                 var randomNumber = basic.getRandomBetween(1, emitterPositions.length - 1);
-                 var position = emitterPositions[randomNumber];
+                 var randomNumber = basic.getRandomBetween(1, this.emitterPositions.length - 1);
+                 var position = this.emitterPositions[randomNumber];
 
-                 var particle = new particles.Particle(position[0], position[1]);
+                 var particle = new particles.Particle(position[0], position[1], this.name);
                  particle.init();
 
-                 emitterPositions.splice(randomNumber, 1);
+                 this.emitterPositions.splice(randomNumber, 1);
 
 
              }
@@ -374,57 +414,67 @@ var background = (function () {
          };
 
 
-         var createRandomEmitter = function (config) {
+         var RandomEmitter = function (config) {
+
+             this.init();
 
              for (var x = 0; x < config.particlesNumber; x++) {
 
                  var randomX = Math.floor((Math.random() * canvas.width) + 1);
                  var randomY = Math.floor((Math.random() * canvas.height) + 1);
 
-                 var particle = new particles.Particle(randomX, randomY);
+                 var particle = new particles.Particle(randomX, randomY, this.name);
                  particle.init()
+
+             }
+
+
+
+         };
+
+         RandomEmitter.prototype = Emitter.prototype;
+
+
+         var PointEmitter = function (emitterConfig, particleConfig) {
+
+             this.init();
+
+             for (var x = 0; x < emitterConfig.particlesNumber; x++) {
+
+
+                 var positionX = (canvas.width / 100) * emitterConfig.positionX + emitterConfig.positionXpx
+                 var positionY = (canvas.height / 100) * emitterConfig.positionY + emitterConfig.positionYpx
+
+                 var particle = new particles.Particle(positionX, positionY, this.name);
+                 particle.init(particleConfig)
 
              }
 
          };
 
-
-         var createPointEmitter = function (config) {
-
-             for (var x = 0; x < config.particlesNumber; x++) {
+         PointEmitter.prototype = Emitter.prototype;
 
 
-                 var positionX = (canvas.width / 100) * config.positionX
-                 var positionY = (canvas.height / 100) * config.positionY
 
-                 var particle = new particles.Particle(positionX, positionY);
-                 particle.init()
+         var addEmitter = function (type, emitterConfig, particleConfig ) {
 
-             }
-
-         };
-
-
-         var addEmitter = function (type, config) {
+             var emitter;
 
              if (type === "text") {
 
-                 createTextEmitter(config)
-                 createTextEmitterParticles(config)
+                 emitter = new TextEmitter(emitterConfig, particleConfig)
+
+             } else if (type === "point") {
+
+                 emitter = new PointEmitter(emitterConfig, particleConfig)
+
+             } else if (type === "random") {
+
+                 emitter = new RandomEmitter(emitterConfig, particleConfig)
 
              }
-             else if (type === "point") {
 
-                 createPointEmitter(config)
-
-
-             }
-             else if (type === "random") {
-
-
-                 createRandomEmitter(config)
-
-             }
+             emitters.push(emitter)
 
          };
 
@@ -442,41 +492,49 @@ var background = (function () {
                      text: options.emitterShape,
                      emitterFontSize: options.emitterFontSize,
                      positionXpx: options.emitterPositionXpx,
+                     positionYpx: options.emitterPositionYpx
 
 
-                 });
+                 }, options);
 
-             }
-             else if (options.emitterType === "point") {
+             } else if (options.emitterType === "point") {
 
 
                  addEmitter("point", {
 
                      positionX: options.emitterPositionX,
                      positionY: options.emitterPositionY,
-                     particlesNumber: options.particlesNumber
+                     positionXpx: options.emitterPositionXpx,
+                     positionYpx: options.emitterPositionYpx,
 
-                 });
+                     particlesNumber: 300
+
+                 }, options);
 
 
-             }
-             else if (options.emitterType === "random") {
+             } else if (options.emitterType === "random") {
 
 
                  addEmitter("random", {
 
                      particlesNumber: options.particlesNumber
 
-                 });
+                 }, options);
 
              }
+
+
 
 
          };
 
 
+        window.particleEngine.addEmitter = addEmitter;
+
 
      }
+
+
 
      return emitter
 
@@ -498,7 +556,7 @@ var fading = (function () {
             if (this.opacity < value) {
 
 
-                this.opacity = this.opacity + 0.02;
+                this.opacity = this.opacity + 0.01;
 
 
                 if (this.opacity > 1) this.opacity = 1;
@@ -509,7 +567,7 @@ var fading = (function () {
             else if (this.opacity > value) {
 
 
-                this.opacity = this.opacity - 0.02;
+                this.opacity = this.opacity - 0.01;
 
             }
 
@@ -523,7 +581,7 @@ var fading = (function () {
 
             this.active = true;
 
-            if (this.actions.indexOf("fadeIn") == -1) {
+            if (this.actions.indexOf("fadeIn") === -1) {
 
                 this.actions.push("fadeIn");
 
@@ -547,8 +605,9 @@ var fading = (function () {
         particles.Particle.prototype.fadeOut = function () {
 
             this.isFading = true;
+          
 
-            if (this.actions.indexOf("fadeOut") == -1) {
+            if (this.actions.indexOf("fadeOut") === -1) {
 
                 this.actions.push("fadeOut");
 
@@ -564,6 +623,8 @@ var fading = (function () {
                 this.isFading = false;
                 this.active = false;
                 this.actions.splice(this.actions.indexOf("fadeOut"), 1)
+                
+                 
 
 
             }
@@ -585,33 +646,30 @@ var fading = (function () {
 
 var forces = (function () {
 
-    var forces = {}
+  var forces = {}
 
-    forces.init = function () {
-
-
-        particles.Particle.prototype.appendGlobalForces = function (forceX, forceY) {
+  forces.init = function () {
 
 
-            this.positionX = this.positionX + forceX;
-
-            if (this.positionX > canvas.width) this.positionX = canvas.width;
-            if (this.positionX < 0) this.positionX = 0;
+    particles.Particle.prototype.appendGlobalForces = function (forceX, forceY) {
 
 
-            this.positionY = this.positionY + forceY;
+      this.positionX = this.positionX + forceX;
 
-            if (this.positionY > canvas.height) this.positionY = canvas.height;
-            if (this.positionY < 0) this.positionY = 0;
-
-
-        }
+      if (this.positionX + this.size > canvas.width) this.positionX = canvas.width - this.size;
+      if (this.positionX < 0) this.positionX = 0;
 
 
+      this.positionY = this.positionY + forceY;
+
+      if (this.positionY > canvas.height) this.positionY = canvas.height;
+      if (this.positionY < 0) this.positionY = 0;
 
     }
 
-    return forces
+  }
+
+  return forces
 
 }());
 
@@ -671,11 +729,14 @@ var statistics = (function () {
             }
 
 
-            var activeParticles = objects.length
-
             ctx.fillStyle = "#fff";
-            ctx.font = "11px Verdana";
-            ctx.fillText("FPS: " + fps + " lines: " + lines + " Active particles: " + activeParticles + " Average FPS: " + averageFps, 10, canvas.height - 20);
+            ctx.font = "10px Verdana";
+            ctx.fillText("FPS: " + fps, 10, canvas.height - 70);
+            ctx.fillText("Average FPS: " + averageFps, 10, canvas.height - 60);
+            ctx.fillText("Active particles: " + objects.length, 10, canvas.height - 50);
+            ctx.fillText("Active emitters: " + emitters.length, 10, canvas.height - 40);
+            ctx.fillText("Connections between particles: " + lines, 10, canvas.height - 30);
+          
             lines = 0;
 
 
@@ -695,6 +756,44 @@ var statistics = (function () {
     return statistics
 
 }());
+
+// ----------------------------------------------------
+// Garbage collector   //
+//-----------------------------------------------------
+
+var garbageCollector = (function(){
+
+  var garbageCollector = {};
+
+  garbageCollector.init = function(){
+
+    garbageCollector.collectGarbage = function(){
+
+      garbageObjects = 0
+
+      for (var x = objects.length-1; x >= 0; x-- ){
+
+        var particle = objects[x];
+        if ((particle.destroyIt === true) && (!particle.active)) {
+
+          objects.splice(x,1)
+        }
+      }
+    };
+
+
+    eventBus.subscribe('refreshScene', function(){
+      if (garbageObjects > 100) garbageCollector.collectGarbage()
+    })
+
+
+  };
+
+  return garbageCollector
+
+})();
+
+
 
 // ----------------------------------------------------
 // Helper functions //
@@ -764,6 +863,13 @@ var basic = (function () {
 
         };
 
+        basic.getPosition = function(x,y){
+
+
+
+
+        }
+
     }
 
     return basic
@@ -789,7 +895,7 @@ var mouse = (function () {
         
         // Container for elements to interact 
        
-        var interactionElements = []
+        var interactionElements = [];
 
         
         
@@ -839,24 +945,21 @@ var mouse = (function () {
                     object.vectorY = object.initialPositionY;
 
                 }
-
             }
-        
         };
         
 
         var drawLine = function(elementA, elementB){
         
-            
-            var element = elementB
             ctx.beginPath();
             ctx.moveTo(elementA.positionX, elementA.positionY);
-            ctx.lineTo(elementB.positionX + elementB.size * 0.5, elementB.positionY + elementB.size * 0.5);
-            ctx.strokeStyle = "rgba(" + options.mouseConnectionRed + "," + options.mouseConnectionGreen + "," + options.mouseConnectionBlue + "," + options.mouseConnectionOpacity + ")";
+            ctx.lineTo(elementB.getCenterX(), elementB.getCenterY());
+            ctx.strokeStyle = "rgba(" +
+                options.mouseConnectionColor.red + "," +
+                options.mouseConnectionColor.green + "," +
+                options.mouseConnectionColor.blue + "," +
+                options.mouseConnectionColor.alpha + ")";
             ctx.stroke();
-            lines++;
-
-        
         };
 
         mouse.Interaction.prototype.updateAnimation = function () {
@@ -866,8 +969,6 @@ var mouse = (function () {
 
             this.grabElements();
             this.interact();
-
-
         };
 
 
@@ -897,65 +998,54 @@ var mouse = (function () {
 
 var options = {
 
-    particleType: "circle", // square, text, circle
-    particleText: "☆",
+    particleType: "square", // square, text, circle
+    particleText: "!",
 
-    emitterShape: "77",
+    emitterShape: "M",
     emitterFontSize: 150,
-    emitterType: "random", // random, point, text
-    emitterPositionX: 50,
-    emitterPositionXpx: 200,
-    emitterPositionY: 50,
-    particlesNumber: 400,
+    emitterType: "point", // random, point, text
+    emitterPositionX: 50, // % position
+    emitterPositionY: 50, // % position
+    emitterPositionXpx: 0, // move px
+    emitterPositionYpx: 0, // move px
+    particlesNumber: 1,
     initialSize: 3,
     randomSize: true,
     minimumSize: 1,
     maximumSize: 3,
-    moveLimit: 50,
-    durationMin: 50,
+    moveLimit: 300,
+    durationMin:50,
     durationMax: 200,
 
-    lifeTime: true,
-    lifeTimeMin: 100,
-    lifeTimeMax: 150,
+    lifeTimeMin: 10,
+    lifeTimeMax : 10,
 
     //global forces
-    globalForceX: 0,
-    globalForceY: 0,
+    globalForceX: 3,
+    globalForceY: -1,
 
     // particles color
-    red: 255,
-    green: 255,
-    blue: 255,
-    opacity: 1,
+
+    particleColor: {red:255, green:255, blue:255, alpha:1},
     randomOpacity: true,
     particleMinimumOpacity: 0.1,
     particleMaximumOpacity: 0.9,
 
     // connections between particles
     drawConnections: false,
-    connectionRed: 255,
-    connectionGreen: 255,
-    connectionBlue: 255,
-    connectionOpacity: 0.1,
+    connectionColor: {red:255, green:255, blue:255, alpha:1},
 
     // mouse connections
-    mouseInteraction: true,
+    mouseInteraction: false,
     mouseInteractionType: "gravity", // initial, gravity
 
 
-    drawMouseConnections: true,
+    drawMouseConnections: false,
     mouseInteractionDistance: 300,
-    mouseConnectionRed: 255,
-    mouseConnectionGreen: 255,
-    mouseConnectionBlue: 255,
-    mouseConnectionOpacity: 0.1,
+    mouseConnectionColor: {red:255, green:255, blue:255, alpha:1},
 
     showStatistics: true,
     background: "gradient", // null, gradient, image
-    backgroundImage: "img/wallpaper.jpg",
-    backgroundMainColor: "255,255,255",
-
 
     // Use object with property names, to easy identify values in color picker
 
@@ -966,12 +1056,12 @@ var options = {
         "color1": {
             positionX: 25,
             positionY: 25,
-            color: "68B9F2"
+            color: "FF9900"
         },
         "color2": {
             positionX: 60,
             positionY: 60,
-            color: "0000ff"
+            color: "FFE066"
         }
 
 
@@ -979,21 +1069,6 @@ var options = {
 
 }
 
-// overwrite default options
-
-var extendOptions = function (options, userOptions) {
-
-    for (var key in userOptions) {
-
-        if (userOptions.hasOwnProperty(key))
-            options[key] = userOptions[key];
-
-    }
-
-    return options;
-}
-
-extendOptions(options, userOptions)
 
 // ----------------------------------------------------
 // Mouse interaction constructor function //
@@ -1008,7 +1083,7 @@ var parallax = (function () {
         particles.Particle.prototype.appendParallax = function () {
 
 
-
+        // to do
 
 
         }
@@ -1025,412 +1100,472 @@ var parallax = (function () {
 //-----------------------------------------------------
 var particles = (function () {
 
-    var particles = {};
-    particles.init = function () {
+  var particles = {};
+  particles.init = function () {
 
 
-        particles.Particle = function (positionX, positionY) {
+    particles.Particle = function (positionX, positionY, emitter) {
 
-            this.positionX = positionX;
-            this.positionY = positionY;
-            this.initialPositionX = positionX;
-            this.initialPositionY = positionY;
+      this.positionX = positionX;
+      this.positionY = positionY;
+      this.initialPositionX = positionX;
+      this.initialPositionY = positionY;
+      this.emitter = emitter;
 
+    }
+
+
+
+    particles.Particle.prototype.doActions = function () {
+
+      for (var x = 0; x < this.actions.length; x++) {
+
+
+        var action = this.actions[x];
+        this[action]();
+
+
+      }
+
+    };
+
+    particles.Particle.prototype.destroy = function(){
+
+      this.destroyIt = true;
+      garbageObjects++
+
+    };
+
+
+
+    particles.Particle.prototype.calculateNewPosition = function (newX, newY) {
+
+      var step;
+      var duration = this.duration;
+
+      var animatePosition = function (newPosition, currentPosition) {
+
+        if (newPosition > currentPosition) {
+
+          step = (newPosition - currentPosition) / duration;
+          newPosition = currentPosition + step;
+        } else {
+
+          step = (currentPosition - newPosition) / duration;
+          newPosition = currentPosition - step;
         }
 
+        return newPosition;
 
+      };
 
-        particles.Particle.prototype.doActions = function () {
+      this.positionX = animatePosition(newX, this.positionX);
+      this.positionY = animatePosition(newY, this.positionY);
 
-            for (var x = 0; x < this.actions.length; x++) {
 
 
-                var action = this.actions[x];
-                this[action]();
+      // generate new vector
 
+      if (this.timer == this.duration) {
 
-            }
+        this.calculateVector();
+        this.timer = 0;
 
-        };
+      }
+      else {
 
+        this.timer++;
 
+      }
 
-        particles.Particle.prototype.calculateNewPosition = function (newX, newY) {
 
-            var step;
-            var duration = this.duration;
+    };
 
-            var animatePosition = function (newPosition, currentPosition) {
+    particles.Particle.prototype.updateColor = function () {
 
-                if (newPosition > currentPosition) {
+      this.color = "rgba(" + this.red + "," + this.green + "," + this.blue + "," + this.opacity + ")";
 
-                    step = (newPosition - currentPosition) / duration;
-                    newPosition = currentPosition + step;
+    };
 
-                }
-                else {
+    particles.Particle.prototype.init = function (particleConfig) {
 
-                    step = (currentPosition - newPosition) / duration;
-                    newPosition = currentPosition - step;
 
-                }
+      this.particleConfig = particleConfig;
 
-                return newPosition;
+      this.initOpacity();
+      this.initSize();
 
-            };
 
-            this.positionX = animatePosition(newX, this.positionX);
-            this.positionY = animatePosition(newY, this.positionY);
+      this.red = particleConfig.particleColor.red;
+      this.green = particleConfig.particleColor.green;
+      this.blue = particleConfig.particleColor.blue;
 
+      this.color = "rgba(" + this.red + "," + this.green + "," + this.blue + "," + this.opacity + ")"
 
+      this.duration = basic.getRandomBetween(particleConfig.durationMin, particleConfig.durationMax);
+      this.limit = particleConfig.moveLimit;
+      this.timer = 0;
 
-            // generate new vector
 
-            if (this.timer == this.duration) {
+      this.lifeTime = getLifeTime(particleConfig.lifeTimeMin, particleConfig.lifeTimeMax)
 
-                this.calculateVector();
-                this.timer = 0;
+      this.actions = []; // container for temporary effects
 
-            }
-            else {
+      this.calculateVector();
 
-                this.timer++;
+      this.active = true;
+      this.closestDistance = maximumPossibleDistance;
 
-            }
-
-
-        };
-
-        particles.Particle.prototype.updateColor = function () {
-
-            this.color = "rgba(" + this.red + "," + this.green + "," + this.blue + "," + this.opacity + ")";
-
-        };
-
-        particles.Particle.prototype.init = function () {
-
-            this.initOpacity();
-            this.initSize();
-
-
-            this.red = options.red;
-            this.green = options.green;
-            this.blue = options.blue;
-
-            this.color = "rgba(" + this.red + "," + this.green + "," + this.blue + "," + this.opacity + ")"
-
-            this.duration = basic.getRandomBetween(options.durationMin, options.durationMax);
-            this.limit = options.moveLimit;
-            this.timer = 0;
-
-
-            this.lifeTime = basic.getRandomBetween(options.lifeTimeMin, options.lifeTimeMax)
-
-            this.actions = []; // container for temporary effects
-
-            this.calculateVector();
-
-            this.active = true;
-            this.closestDistance = maximumPossibleDistance;
-
-            objects.push(this);
-            this.index = objects.indexOf(this);
-
-
-        }
-
-        particles.Particle.prototype.initOpacity = function () {
-
-            if (options.randomOpacity) {
-
-                this.opacity = basic.getRandomDecimalBetween(options.particleMinimumOpacity, options.particleMaximumOpacity);
-
-            }
-            else {
-
-                this.opacity = options.opacity;
-
-            }
-
-            this.initialOpacity = this.opacity;
-
-        };
-
-        particles.Particle.prototype.initSize = function () {
-
-            if (options.randomSize) {
-
-                this.size = basic.getRandomBetween(options.minimumSize, options.maximumSize);
-
-            }
-            else {
-
-                this.size = options.initialSize;
-
-            }
-
-        };
-
-
-
-
-        particles.Particle.prototype.calculateVector = function () {
-
-
-            var distance;
-            var newPosition = {};
-            var particle = this;
-
-            var getCoordinates = function () {
-
-
-                // limit coordinates to look for (distance limit)
-
-                var minPX = particle.positionX - particle.limit;
-                var maxPX = particle.positionX + particle.limit;
-
-                if (maxPX > canvas.width) maxPX = canvas.width;
-                if (minPX < 0) minPX = 0;
-
-                var minPY = particle.positionY - particle.limit;
-                var maxPY = particle.positionY + particle.limit
-
-                if (maxPY > canvas.height) maxPY = canvas.height;
-                if (minPY < 0) minPY = 0;
-
-                newPosition.positionX = basic.getRandomBetween(minPX, maxPX);
-                newPosition.positionY = basic.getRandomBetween(minPY, maxPY);
-
-                distance = basic.getDistance(particle, newPosition);
-
-            };
-
-            while ((typeof distance === "undefined") || (distance > this.limit)) {
-
-                getCoordinates();
-
-            }
-
-
-            this.vectorX = newPosition.positionX;
-            this.vectorY = newPosition.positionY;
-
-
-        };
-
-        particles.Particle.prototype.getCenterX = function () {
-
-            if (options.particleType == "square") {
-
-                centerX = this.positionX + (this.size * 0.5);
-
-            }
-            else if (options.particleType == "circle") {
-
-                centerX = this.positionX;
-
-            }
-
-            return centerX
-
-        };
-
-        particles.Particle.prototype.getCenterY = function () {
-
-            if (options.particleType == "square") {
-
-                centerY = this.positionY + (this.size * 0.5);
-
-            }
-            else if (options.particleType == "circle") {
-
-                centerY = this.positionY;
-
-            }
-
-            return centerY
-
-        };
-
-
-
-
-        // ----------------------------------------------------
-        // Test interaction //
-        //-----------------------------------------------------
-        // Brute-force method to test interactions between particles
-        // We are are starting loop from particle.index value to avoid double tests.
-
-        particles.Particle.prototype.testInteraction = function () {
-
-            for (var x = this.index + 1; x < objects.length; x++) {
-
-
-                var testedObject = objects[x];
-
-                var distance = basic.getDistance(this, testedObject);
-
-
-                if (distance < this.closestDistance) {
-
-                    this.closestDistance = distance;
-                    this.closestElement = testedObject;
-
-                }
-
-                if (distance < testedObject.closestDistance) {
-
-                    testedObject.closestDistance = distance;
-                    testedObject.closestElement = this;
-
-                }
-
-            }
-
-            if (this.closestElement) {
-
-                ctx.beginPath();
-                ctx.moveTo(this.getCenterX(), this.getCenterY());
-                ctx.lineTo(this.closestElement.getCenterX(), this.closestElement.getCenterY());
-                ctx.strokeStyle = "rgba(" + options.connectionRed + "," + options.connectionGreen + "," + options.connectionBlue + "," + options.connectionOpacity + ")";
-                ctx.stroke();
-                lines++;
-            }
-
-        };
-
-
-
-
-
-        particles.Particle.prototype.updateLifeTime = function () {
-
-            this.lifeTime--;
-
-            if (this.lifeTime < 0) {
-
-                this.fadeOut()
-
-
-            }
-
-        };
-
-
-        particles.Particle.prototype.updateAnimation = function () {
-
-            // calculate new position (Vector animation)
-            this.calculateNewPosition(this.vectorX, this.vectorY);
-
-            // append global forces
-            this.appendGlobalForces(options.globalForceX, options.globalForceY)
-
-
-
-            // draw particle
-            this.updateColor();
-            ctx.fillStyle = this.color;
-
-            if (options.particleType == "square") {
-
-                ctx.fillRect(this.positionX, this.positionY, this.size, this.size);
-
-            }
-            else if (options.particleType == "circle") {
-
-                ctx.beginPath();
-                ctx.arc(this.positionX, this.positionY, this.size, 0, 2 * Math.PI);
-                ctx.fill()
-                ctx.closePath();
-
-            }
-            else if (options.particleType == "text") {
-
-                ctx.font = this.size + "px Verdana"
-                ctx.fillText(options.particleText, this.positionX, this.positionY)
-            }
-
-
-        };
-
-
+      objects.push(this);
+      this.index = objects.indexOf(this);
 
 
 
     }
 
-    return particles
+    var getLifeTime = function(min,max) {
+
+      if ((typeof min !== "undefined") && (typeof max !== "undefined")){
+
+        return basic.getRandomBetween(min, max)
+
+      }  else {
+
+        return false;
+      }
+
+    }
+
+
+
+    particles.Particle.prototype.initOpacity = function () {
+
+      if (this.particleConfig.randomOpacity) {
+
+        this.opacity = basic.getRandomDecimalBetween(this.particleConfig.particleMinimumOpacity, this.particleConfig.particleMaximumOpacity);
+
+      }
+      else {
+
+        this.opacity = this.particleConfig.particleColor.alpha;
+
+      }
+
+      this.initialOpacity = this.opacity;
+
+    };
+
+    particles.Particle.prototype.initSize = function () {
+
+      if (this.particleConfig.randomSize) {
+
+        this.size = basic.getRandomBetween(this.particleConfig.minimumSize, this.particleConfig.maximumSize);
+
+      }
+      else {
+
+        this.size = this.particleConfig.initialSize;
+
+      }
+
+    };
+
+
+
+
+    particles.Particle.prototype.calculateVector = function () {
+
+
+      var distance;
+      var newPosition = {};
+      var particle = this;
+
+      var getCoordinates = function () {
+
+
+        // limit coordinates to look for (distance limit)
+
+        var minPX = particle.positionX - particle.limit;
+        var maxPX = particle.positionX + particle.limit;
+
+        if (maxPX > canvas.width) maxPX = canvas.width;
+        if (minPX < 0) minPX = 0;
+
+        var minPY = particle.positionY - particle.limit;
+        var maxPY = particle.positionY + particle.limit
+
+        if (maxPY > canvas.height) maxPY = canvas.height;
+        if (minPY < 0) minPY = 0;
+
+        newPosition.positionX = basic.getRandomBetween(minPX, maxPX);
+        newPosition.positionY = basic.getRandomBetween(minPY, maxPY);
+
+        distance = basic.getDistance(particle, newPosition);
+
+      };
+
+      while ((typeof distance === "undefined") || (distance > this.limit)) {
+
+        getCoordinates();
+
+      }
+
+
+      this.vectorX = newPosition.positionX;
+      this.vectorY = newPosition.positionY;
+
+
+    };
+
+    particles.Particle.prototype.getCenterX = function () {
+
+      if (this.particleConfig.particleType == "square") {
+
+        centerX = this.positionX + (this.size * 0.5);
+
+      }
+      else if (this.particleConfig.particleType == "circle") {
+
+        centerX = this.positionX;
+
+      }
+
+      return centerX
+
+    };
+
+    particles.Particle.prototype.getCenterY = function () {
+
+      if (this.particleConfig.particleType == "square") {
+
+        centerY = this.positionY + (this.size * 0.5);
+
+      }
+      else if (this.particleConfig.particleType == "circle") {
+
+        centerY = this.positionY;
+
+      }
+
+      return centerY
+
+    };
+
+
+
+
+    // ----------------------------------------------------
+    // Find closest element //
+    //-----------------------------------------------------
+    // Brute-force method to test interactions between particles
+    // loop starts from particle.index value to avoid double tests.
+
+    particles.Particle.prototype.testInteraction = function () {
+
+      for (var x = this.index + 1; x < objects.length; x++) {
+
+        if (!this.active ) return;
+        var testedObject = objects[x];
+
+        var distance = basic.getDistance(this, testedObject);
+
+
+        // find the closest element
+        if ((distance < this.closestDistance) && (testedObject.active === true)) {
+
+          this.closestDistance = distance;
+          this.closestElement = testedObject;
+
+        }
+
+        if (distance < testedObject.closestDistance) {
+
+          testedObject.closestDistance = distance;
+          testedObject.closestElement = this;
+
+        }
+
+      }
+
+
+    };
+
+    particles.Particle.prototype.drawLine = function () {
+
+      ctx.beginPath();
+      ctx.moveTo(this.getCenterX(), this.getCenterY());
+      ctx.lineTo(this.closestElement.getCenterX(), this.closestElement.getCenterY());
+      ctx.strokeStyle = "rgba(" +
+        options.connectionColor.red + "," +
+        options.connectionColor.green + "," +
+        options.connectionColor.blue + "," +
+        options.connectionColor.alpha + ")";
+      ctx.stroke();
+      lines++;
+
+    }
+
+    particles.Particle.prototype.updateLifeTime = function () {
+
+
+      this.lifeTime--;
+
+      if (this.lifeTime < 0) {
+
+        this.fadeOut()
+
+      }
+
+    };
+
+
+    particles.Particle.prototype.updateAnimation = function () {
+
+      // calculate new position (Vector animation)
+      this.calculateNewPosition(this.vectorX, this.vectorY);
+
+      // append global forces
+      this.appendGlobalForces(options.globalForceX, options.globalForceY)
+
+
+
+      // draw particle
+      this.updateColor();
+      ctx.fillStyle = this.color;
+
+      if (this.particleConfig.particleType == "square") {
+
+        ctx.fillRect(this.positionX, this.positionY, this.size, this.size);
+
+      }
+      else if (this.particleConfig.particleType == "circle") {
+
+        ctx.beginPath();
+        ctx.arc(this.positionX, this.positionY, this.size, 0, 2 * Math.PI);
+        ctx.fill()
+        ctx.closePath();
+
+      }
+      else if (this.particleConfig.particleType == "text") {
+
+        ctx.font = this.size + "px Verdana"
+        ctx.fillText(options.particleText, this.positionX, this.positionY)
+      }
+
+
+    };
+
+
+
+
+
+  }
+
+  return particles
 
 }());
 
-// ----------------------------------------------------
-// Mouse interaction constructor function //
-//-----------------------------------------------------
 var scene = (function () {
 
-    var scene = {};
-    scene.init = function () {
+  var scene = {};
+  scene.init = function () {
 
-
-        scene.update = function () {
-
-
-            // reset distance to closest element for all particles
-            for (var x = 0; x < objects.length; x++) {
-
-                objects[x].closestDistance = maximumPossibleDistance;
-
-            }
-
-            // reset distance to closest element
-            for (var x = 0; x < objects.length; x++) {
-
-                var particle = objects[x];
-
-                particle.doActions();
-
-                if (particle.active) {
-
-                    particle.updateAnimation();
-
-                    if (options.drawConnections) particle.testInteraction();
-                    if (options.lifeTime) particle.updateLifeTime();
-
-
-                }
-                else if ((particle.active === false) && (particle.isFading === false)) {
-
-                    particle.lifeTime = 100 //getRandomBetween(options.lifeTimeMin,options.lifeTimeMax);
-                    particle.positionX = particle.initialPositionX;
-                    particle.positionY = particle.initialPositionY;
-
-                    particle.calculateVector();
-                    particle.timer = 0;
+    var frame = 0;
 
 
 
-                    particle.fadeIn();
+    scene.update = function () {
 
-                }
+      frame++
 
-            }
+      // Test interactions between particles every 3 frames for better performance
+      // todo - implement test 1/4 interactions per frame (Xxxx -> xXxx -> xxXx -> xxxX)
 
-            eventBus.emit("refreshScene")
+      if ((options.drawConnections) && (frame === 3)) {
+
+        frame = 0;
+
+        for (var x = 0; x < objects.length; x++) {
+
+          var particle = objects[x];
+          particle.closestDistance = maximumPossibleDistance;
+          particle.closestElement = null;
+
+        }
 
 
-        };
+        for (var x = 0; x < objects.length; x++) {
+
+          var particle = objects[x];
+          particle.testInteraction();
+
+        }
 
 
-    }
+      }
 
-    return scene
+
+      if (options.drawConnections) {
+
+        for (var x = 0; x < objects.length; x++) {
+
+          var particle = objects[x];
+
+          if (particle.closestElement) particle.drawLine();
+        }
+      }
+
+
+      for (var x = 0; x < objects.length; x++) {
+
+        var particle = objects[x];
+
+        particle.doActions();
+
+        if (particle.active) {
+
+          particle.updateAnimation();
+          particle.updateLifeTime();
+
+
+        } else if ((!particle.destroyIt) && (!particle.active) && (!particle.isFading)) {
+
+          particle.lifeTime = 100 //getRandomBetween(options.lifeTimeMin,options.lifeTimeMax);
+          particle.positionX = particle.initialPositionX;
+          particle.positionY = particle.initialPositionY;
+
+          particle.calculateVector();
+          particle.timer = 0;
+
+
+          particle.fadeIn();
+
+        }
+
+      }
+
+      for (var x=0; x < emitters.length; x++) {
+
+        emitters[x].update()
+
+      }
+
+
+      eventBus.emit("refreshScene")
+
+    };
+
+  }
+
+  return scene
 
 }());
 
 // init modules
 
+createGlobalParticlesObject()
 basic.init()
-
+garbageCollector.init()
 particles.init()
 mouse.init()
 emitter.init()
@@ -1447,8 +1582,11 @@ statistics.init()
 
 canvas.onmousemove = function (e) {
 
-    mousePositionX = e.clientX - container.offsetLeft + window.pageXOffset;
-    mousePositionY = e.clientY - container.offsetTop + window.pageYOffset;
+  mousePositionX = e.clientX - container.offsetLeft + window.pageXOffset;
+  mousePositionY = e.clientY - container.offsetTop + window.pageYOffset;
+
+  particleEngine.mousePositionX = mousePositionX;
+  particleEngine.mousePositionY = mousePositionY;
 
 
 };
@@ -1456,7 +1594,7 @@ canvas.onmousemove = function (e) {
 
 var clearCanvas = function () {
 
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
 
 
 };
@@ -1464,12 +1602,12 @@ var clearCanvas = function () {
 var stopAnimation = function () {
 
 
-    window.cancelAnimationFrame(window.particleEngine["animation" + id]);
-    isRunning = false;
+  window.cancelAnimationFrame(window.particleEngine["animation" + containerId]);
+  isRunning = false;
 
 };
 
-
+window.getP = function(){console.log(objects)}
 
 // ----------------------------------------------------
 // Init! //
@@ -1477,14 +1615,14 @@ var stopAnimation = function () {
 
 var loop = function () {
 
-    clearCanvas();
-    scene.update();
+  clearCanvas();
+  scene.update();
 
 
-    window.particleEngine["animation" + id] = requestAnimationFrame(loop);
-    isRunning = true;
+  window.particleEngine["animation" + containerId] = requestAnimationFrame(loop);
+  isRunning = true;
 
-    if (options.showStatistics) eventBus.emit("requestStatistics")
+  if (options.showStatistics) eventBus.emit("requestStatistics")
 
 };
 

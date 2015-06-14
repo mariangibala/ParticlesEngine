@@ -1,63 +1,95 @@
-// ----------------------------------------------------
-// Mouse interaction constructor function //
-//-----------------------------------------------------
 var scene = (function () {
 
-    var scene = {};
-    scene.init = function () {
+  var scene = {};
+  scene.init = function () {
 
-
-        scene.update = function () {
-
-
-            // reset distance to closest element for all particles
-            for (var x = 0; x < objects.length; x++) {
-
-                objects[x].closestDistance = maximumPossibleDistance;
-
-            }
-
-            // reset distance to closest element
-            for (var x = 0; x < objects.length; x++) {
-
-                var particle = objects[x];
-
-                particle.doActions();
-
-                if (particle.active) {
-
-                    particle.updateAnimation();
-
-                    if (options.drawConnections) particle.testInteraction();
-                    if (options.lifeTime) particle.updateLifeTime();
-
-
-                }
-                else if ((particle.active === false) && (particle.isFading === false)) {
-
-                    particle.lifeTime = 100 //getRandomBetween(options.lifeTimeMin,options.lifeTimeMax);
-                    particle.positionX = particle.initialPositionX;
-                    particle.positionY = particle.initialPositionY;
-
-                    particle.calculateVector();
-                    particle.timer = 0;
+    var frame = 0;
 
 
 
-                    particle.fadeIn();
+    scene.update = function () {
 
-                }
+      frame++
 
-            }
+      // Test interactions between particles every 3 frames for better performance
+      // todo - implement test 1/4 interactions per frame (Xxxx -> xXxx -> xxXx -> xxxX)
 
-            eventBus.emit("refreshScene")
+      if ((options.drawConnections) && (frame === 3)) {
+
+        frame = 0;
+
+        for (var x = 0; x < objects.length; x++) {
+
+          var particle = objects[x];
+          particle.closestDistance = maximumPossibleDistance;
+          particle.closestElement = null;
+
+        }
 
 
-        };
+        for (var x = 0; x < objects.length; x++) {
+
+          var particle = objects[x];
+          particle.testInteraction();
+
+        }
 
 
-    }
+      }
 
-    return scene
+
+      if (options.drawConnections) {
+
+        for (var x = 0; x < objects.length; x++) {
+
+          var particle = objects[x];
+
+          if (particle.closestElement) particle.drawLine();
+        }
+      }
+
+
+      for (var x = 0; x < objects.length; x++) {
+
+        var particle = objects[x];
+
+        particle.doActions();
+
+        if (particle.active) {
+
+          particle.updateAnimation();
+          particle.updateLifeTime();
+
+
+        } else if ((!particle.destroyIt) && (!particle.active) && (!particle.isFading)) {
+
+          particle.lifeTime = 100 //getRandomBetween(options.lifeTimeMin,options.lifeTimeMax);
+          particle.positionX = particle.initialPositionX;
+          particle.positionY = particle.initialPositionY;
+
+          particle.calculateVector();
+          particle.timer = 0;
+
+
+          particle.fadeIn();
+
+        }
+
+      }
+
+      for (var x=0; x < emitters.length; x++) {
+
+        emitters[x].update()
+
+      }
+
+
+      eventBus.emit("refreshScene")
+
+    };
+
+  }
+
+  return scene
 
 }());
