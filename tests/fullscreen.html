@@ -74,10 +74,10 @@ particleEngine.addEmitter('random', {
 
         particleEngine.addEmitter("point", {
 
-                    positionX: 0,
-                    positionY: 0,
-                    positionXpx: particleEngine.mousePositionX,
-                    positionYpx: particleEngine.mousePositionY,
+                    positionX: 50,
+                    positionY: 50,
+                    //positionXpx: particleEngine.mousePositionX,
+                    //positionYpx: particleEngine.mousePositionY,
                     particlesNumber: 75,
                     lifeTime: 1
                 },
@@ -95,7 +95,6 @@ particleEngine.addEmitter('random', {
                     lifeTimeMax: 150,
 
                     // particles color
-
                     particleColor: {red: 255, green: 0, blue: 0, alpha: 1},
                     randomOpacity: true,
                     particleMinimumOpacity: 0.1,

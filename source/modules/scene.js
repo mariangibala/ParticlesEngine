@@ -5,9 +5,7 @@ var scene = (function () {
 
     var frame = 0;
 
-    scene.update = function () {
-
-      frame++;
+    var handleConnections = function(){
 
       // Test interactions between particles every 3 frames for better performance
       // todo - implement test 1/4 interactions per frame (Xxxx -> xXxx -> xxXx -> xxxX)
@@ -44,6 +42,14 @@ var scene = (function () {
         }
       }
 
+    };
+
+    scene.update = function () {
+
+      frame++;
+
+      handleConnections();
+
       for (var x = 0; x < objects.length; x++) {
 
         var particle = objects[x];
@@ -58,7 +64,6 @@ var scene = (function () {
           particle.updateAnimation();
           particle.updateLifeTime();
 
-
         } else if ((!particle.destroyIt) && (!particle.active) && (!particle.isFading)) {
 
           particle.lifeTime = 100; //getRandomBetween(options.lifeTimeMin,options.lifeTimeMax);
@@ -71,7 +76,6 @@ var scene = (function () {
           particle.fadeIn();
 
         }
-
       }
 
       for (var x = 0; x < emitters.length; x++) {

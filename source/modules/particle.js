@@ -113,25 +113,19 @@ var particles = (function () {
     var getLifeTime = function(min,max) {
 
       if ((typeof min !== "undefined") && (typeof max !== "undefined")){
-
         return basic.getRandomBetween(min, max);
 
       } else {
-
         return false;
       }
-
     };
-
 
     particles.Particle.prototype.initOpacity = function () {
 
       if (this.particleConfig.randomOpacity) {
-
         this.opacity = basic.getRandomDecimalBetween(this.particleConfig.particleMinimumOpacity, this.particleConfig.particleMaximumOpacity);
 
       } else {
-
         this.opacity = this.particleConfig.particleColor.alpha;
 
       }
@@ -143,15 +137,12 @@ var particles = (function () {
     particles.Particle.prototype.initSize = function () {
 
       if (this.particleConfig.randomSize) {
-
         this.size = basic.getRandomBetween(this.particleConfig.minimumSize, this.particleConfig.maximumSize);
 
       } else {
-
         this.size = this.particleConfig.initialSize;
 
       }
-
     };
 
     particles.Particle.prototype.calculateVector = function () {
@@ -162,8 +153,7 @@ var particles = (function () {
 
       var getCoordinates = function () {
 
-        // limit coordinates to look for (distance limit)
-
+        // limit X coordinates to look for (distance limit)
         var minPX = particle.positionX - particle.limit;
         var maxPX = particle.positionX + particle.limit;
 
@@ -174,6 +164,7 @@ var particles = (function () {
           minPX = 0;
         }
 
+        // limit Y coordinates to look for (distance limit)
         var minPY = particle.positionY - particle.limit;
         var maxPY = particle.positionY + particle.limit;
 
@@ -200,41 +191,33 @@ var particles = (function () {
       this.vectorX = newPosition.positionX;
       this.vectorY = newPosition.positionY;
 
-
     };
 
     particles.Particle.prototype.getCenterX = function () {
 
       if (this.particleConfig.particleType === "square") {
-
         centerX = this.positionX + (this.size * 0.5);
 
       } else if (this.particleConfig.particleType === "circle") {
-
         centerX = this.positionX;
 
       }
 
       return centerX;
-
     };
 
     particles.Particle.prototype.getCenterY = function () {
 
       if (this.particleConfig.particleType === "square") {
-
         centerY = this.positionY + (this.size * 0.5);
 
       } else if (this.particleConfig.particleType === "circle") {
-
         centerY = this.positionY;
 
       }
 
       return centerY;
-
     };
-
 
     // Find closest element
     // Brute-force method to test interactions between particles
@@ -294,7 +277,6 @@ var particles = (function () {
       }
 
     };
-
 
     particles.Particle.prototype.updateAnimation = function () {
 

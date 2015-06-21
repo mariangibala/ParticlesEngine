@@ -31,7 +31,6 @@ var options = {
   globalForceY: -1,
 
   // particles color
-
   particleColor: {red:255, green:255, blue:255, alpha:1},
   randomOpacity: true,
   particleMinimumOpacity: 0.1,
@@ -45,7 +44,6 @@ var options = {
   mouseInteraction: false,
   mouseInteractionType: "gravity", // initial, gravity
 
-
   drawMouseConnections: false,
   mouseInteractionDistance: 300,
   mouseConnectionColor: {red:255, green:255, blue:255, alpha:1},
@@ -54,10 +52,7 @@ var options = {
   background: "gradient", // null, gradient, image
 
   // Use object with property names, to easy identify values in color picker
-
   backgroundColors: {
-
-
     "color1": {
       positionX: 25,
       positionY: 25,
@@ -68,9 +63,5 @@ var options = {
       positionY: 60,
       color: "FFE066"
     }
-
-
   }
-
 };
-

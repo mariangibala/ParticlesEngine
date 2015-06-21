@@ -870,7 +870,6 @@ var options = {
   globalForceY: -1,
 
   // particles color
-
   particleColor: {red:255, green:255, blue:255, alpha:1},
   randomOpacity: true,
   particleMinimumOpacity: 0.1,
@@ -884,7 +883,6 @@ var options = {
   mouseInteraction: false,
   mouseInteractionType: "gravity", // initial, gravity
 
-
   drawMouseConnections: false,
   mouseInteractionDistance: 300,
   mouseConnectionColor: {red:255, green:255, blue:255, alpha:1},
@@ -893,10 +891,7 @@ var options = {
   background: "gradient", // null, gradient, image
 
   // Use object with property names, to easy identify values in color picker
-
   backgroundColors: {
-
-
     "color1": {
       positionX: 25,
       positionY: 25,
@@ -907,13 +902,8 @@ var options = {
       positionY: 60,
       color: "FFE066"
     }
-
-
   }
-
 };
-
-
 // ----------------------------------------------------
 // Particle constructor function //
 //-----------------------------------------------------
@@ -1029,25 +1019,19 @@ var particles = (function () {
     var getLifeTime = function(min,max) {
 
       if ((typeof min !== "undefined") && (typeof max !== "undefined")){
-
         return basic.getRandomBetween(min, max);
 
       } else {
-
         return false;
       }
-
     };
-
 
     particles.Particle.prototype.initOpacity = function () {
 
       if (this.particleConfig.randomOpacity) {
-
         this.opacity = basic.getRandomDecimalBetween(this.particleConfig.particleMinimumOpacity, this.particleConfig.particleMaximumOpacity);
 
       } else {
-
         this.opacity = this.particleConfig.particleColor.alpha;
 
       }
@@ -1059,15 +1043,12 @@ var particles = (function () {
     particles.Particle.prototype.initSize = function () {
 
       if (this.particleConfig.randomSize) {
-
         this.size = basic.getRandomBetween(this.particleConfig.minimumSize, this.particleConfig.maximumSize);
 
       } else {
-
         this.size = this.particleConfig.initialSize;
 
       }
-
     };
 
     particles.Particle.prototype.calculateVector = function () {
@@ -1078,8 +1059,7 @@ var particles = (function () {
 
       var getCoordinates = function () {
 
-        // limit coordinates to look for (distance limit)
-
+        // limit X coordinates to look for (distance limit)
         var minPX = particle.positionX - particle.limit;
         var maxPX = particle.positionX + particle.limit;
 
@@ -1090,6 +1070,7 @@ var particles = (function () {
           minPX = 0;
         }
 
+        // limit Y coordinates to look for (distance limit)
         var minPY = particle.positionY - particle.limit;
         var maxPY = particle.positionY + particle.limit;
 
@@ -1116,41 +1097,33 @@ var particles = (function () {
       this.vectorX = newPosition.positionX;
       this.vectorY = newPosition.positionY;
 
-
     };
 
     particles.Particle.prototype.getCenterX = function () {
 
       if (this.particleConfig.particleType === "square") {
-
         centerX = this.positionX + (this.size * 0.5);
 
       } else if (this.particleConfig.particleType === "circle") {
-
         centerX = this.positionX;
 
       }
 
       return centerX;
-
     };
 
     particles.Particle.prototype.getCenterY = function () {
 
       if (this.particleConfig.particleType === "square") {
-
         centerY = this.positionY + (this.size * 0.5);
 
       } else if (this.particleConfig.particleType === "circle") {
-
         centerY = this.positionY;
 
       }
 
       return centerY;
-
     };
-
 
     // Find closest element
     // Brute-force method to test interactions between particles
@@ -1211,7 +1184,6 @@ var particles = (function () {
 
     };
 
-
     particles.Particle.prototype.updateAnimation = function () {
 
       // calculate new position (Vector animation)
@@ -1252,9 +1224,7 @@ var scene = (function () {
 
     var frame = 0;
 
-    scene.update = function () {
-
-      frame++;
+    var handleConnections = function(){
 
       // Test interactions between particles every 3 frames for better performance
       // todo - implement test 1/4 interactions per frame (Xxxx -> xXxx -> xxXx -> xxxX)
@@ -1291,6 +1261,14 @@ var scene = (function () {
         }
       }
 
+    };
+
+    scene.update = function () {
+
+      frame++;
+
+      handleConnections();
+
       for (var x = 0; x < objects.length; x++) {
 
         var particle = objects[x];
@@ -1305,7 +1283,6 @@ var scene = (function () {
           particle.updateAnimation();
           particle.updateLifeTime();
 
-
         } else if ((!particle.destroyIt) && (!particle.active) && (!particle.isFading)) {
 
           particle.lifeTime = 100; //getRandomBetween(options.lifeTimeMin,options.lifeTimeMax);
@@ -1318,7 +1295,6 @@ var scene = (function () {
           particle.fadeIn();
 
         }
-
       }
 
       for (var x = 0; x < emitters.length; x++) {
