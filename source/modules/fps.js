@@ -4,80 +4,68 @@
 
 var statistics = (function () {
 
-    var statistics = {}
-    statistics.init = function () {
+  var statistics = {}
 
-        var lastCalledTime;
-        var fps;
-        var averageFps;
-        var averageFpsTemp = 0;
-        var averageFpsCounter = 0;
+  statistics.init = function () {
 
-
-        var requestStatistics = function () {
-
-            if (!lastCalledTime) {
-
-                lastCalledTime = Date.now();
-                fps = 0;
-                return;
-
-            }
+    var lastCalledTime;
+    var fps;
+    var averageFps;
+    var averageFpsTemp = 0;
+    var averageFpsCounter = 0;
 
 
+    var requestStatistics = function () {
 
-            var delta = (new Date().getTime() - lastCalledTime) / 1000;
-            lastCalledTime = Date.now();
-            fps = Math.floor(1 / delta);
+      if (!lastCalledTime) {
 
-            averageFpsTemp = averageFpsTemp + fps;
-            averageFpsCounter++;
+        lastCalledTime = Date.now();
+        fps = 0;
+        return;
 
-            if (averageFpsCounter === 5) {
+      }
 
+      var delta = (new Date().getTime() - lastCalledTime) / 1000;
+      lastCalledTime = Date.now();
+      fps = Math.floor(1 / delta);
 
-                averageFps = Math.floor(averageFpsTemp / 5);
-                averageFpsCounter = 0;
-                averageFpsTemp = 0;
-            }
+      averageFpsTemp = averageFpsTemp + fps;
+      averageFpsCounter++;
 
-            if (!averageFps) {
+      if (averageFpsCounter === 5) {
 
-                return;
+        averageFps = Math.floor(averageFpsTemp / 5);
+        averageFpsCounter = 0;
+        averageFpsTemp = 0;
+      }
 
-            }
-            else if (averageFps < 10) {
-                /*  stopAnimation(); 
-                averageFps = undefined; 
-                 $("#fpsError").fadeIn();*/
+      if (!averageFps) {
 
-            }
+        return;
 
+      } else if (averageFps < 10) {
+        /*  stopAnimation();
+         averageFps = undefined;
+         $("#fpsError").fadeIn();*/
+      }
 
-            ctx.fillStyle = "#fff";
-            ctx.font = "10px Verdana";
-            ctx.fillText("FPS: " + fps, 10, canvas.height - 70);
-            ctx.fillText("Average FPS: " + averageFps, 10, canvas.height - 60);
-            ctx.fillText("Active particles: " + objects.length, 10, canvas.height - 50);
-            ctx.fillText("Active emitters: " + emitters.length, 10, canvas.height - 40);
-            ctx.fillText("Connections between particles: " + lines, 10, canvas.height - 30);
-          
-            lines = 0;
+      ctx.fillStyle = "#fff";
 
+      ctx.font = "10px Verdana";
+      ctx.fillText("FPS: " + fps, 10, canvas.height - 70);
+      ctx.fillText("Average FPS: " + averageFps, 10, canvas.height - 60);
+      ctx.fillText("Active particles: " + objects.length, 10, canvas.height - 50);
+      ctx.fillText("Active emitters: " + emitters.length, 10, canvas.height - 40);
+      ctx.fillText("Connections between particles: " + lines, 10, canvas.height - 30);
 
-
-
-        }
-
-        // ----------------------------------------------------
-        // Subscribe request Statistics event //
-        //-----------------------------------------------------
-
-
-        eventBus.subscribe("requestStatistics", requestStatistics)
-
+      lines = 0;
     }
 
-    return statistics
+    // Subscribe request Statistics event //
+    eventBus.subscribe("requestStatistics", requestStatistics)
+
+  }
+
+  return statistics
 
 }());

@@ -8,9 +8,7 @@ var forces = (function () {
 
   forces.init = function () {
 
-
     particles.Particle.prototype.appendGlobalForces = function (forceX, forceY) {
-
 
       this.positionX = this.positionX + forceX;
 
@@ -24,7 +22,6 @@ var forces = (function () {
       if (this.positionY < 0) this.positionY = 0;
 
     }
-
   }
 
   return forces

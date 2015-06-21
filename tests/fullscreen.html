@@ -36,30 +36,30 @@ height:100%;
 
 <script>
 
-generateParticles("animation1")
+generateParticles("animation1");
 
-    window.onclick = function(){
-
-        particleEngine.addEmitter("point",{
+/*
+particleEngine.addEmitter('random', {
 
             positionX: 0,
             positionY: 0,
+
             positionXpx: particleEngine.mousePositionX,
             positionYpx: particleEngine.mousePositionY,
-            particlesNumber: 30
+            particlesNumber: 500
         },
         {
-            particleType: "circle", // square, text, circle
+            particleType: "square", // square, text, circle
             initialSize: 3,
             randomSize: true,
             minimumSize: 1,
             maximumSize: 5,
             moveLimit: 300,
-            durationMin:50,
-            durationMax: 200,
+            durationMin:20,
+            durationMax: 70,
 
-            lifeTimeMin: 5,
-            lifeTimeMax: 150,
+            //lifeTimeMin: 5,
+            //lifeTimeMax: 150,
 
             // particles color
 
@@ -68,6 +68,39 @@ generateParticles("animation1")
             particleMinimumOpacity: 0.1,
             particleMaximumOpacity: 0.9
         })
+*/
+
+    window.onclick = function() {
+
+        particleEngine.addEmitter("point", {
+
+                    positionX: 0,
+                    positionY: 0,
+                    positionXpx: particleEngine.mousePositionX,
+                    positionYpx: particleEngine.mousePositionY,
+                    particlesNumber: 75,
+                    lifeTime: 1
+                },
+                {
+                    particleType: "circle", // square, text, circle
+                    initialSize: 3,
+                    randomSize: true,
+                    minimumSize: 1,
+                    maximumSize: 3,
+                    moveLimit: 150,
+                    durationMin: 30,
+                    durationMax: 70,
+
+                    lifeTimeMin: 5,
+                    lifeTimeMax: 150,
+
+                    // particles color
+
+                    particleColor: {red: 255, green: 0, blue: 0, alpha: 1},
+                    randomOpacity: true,
+                    particleMinimumOpacity: 0.1,
+                    particleMaximumOpacity: 0.9
+                });
 
     }
 

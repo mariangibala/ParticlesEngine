@@ -5,8 +5,6 @@ var scene = (function () {
 
     var frame = 0;
 
-
-
     scene.update = function () {
 
       frame++
@@ -26,17 +24,13 @@ var scene = (function () {
 
         }
 
-
         for (var x = 0; x < objects.length; x++) {
 
           var particle = objects[x];
           particle.testInteraction();
 
         }
-
-
       }
-
 
       if (options.drawConnections) {
 
@@ -48,12 +42,14 @@ var scene = (function () {
         }
       }
 
-
       for (var x = 0; x < objects.length; x++) {
 
         var particle = objects[x];
 
         particle.doActions();
+
+        // append global forces
+        particle.appendGlobalForces(options.globalForceX, options.globalForceY)
 
         if (particle.active) {
 
@@ -69,7 +65,6 @@ var scene = (function () {
 
           particle.calculateVector();
           particle.timer = 0;
-
 
           particle.fadeIn();
 

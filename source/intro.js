@@ -48,6 +48,12 @@
         return setTimeout(callback, 1000 / 60)
       };
 
+    var stopAnimation = function () {
+
+      cancelAnimation(window.particleEngine["animation" + containerId]);
+
+    };
+
 
 // ----------------------------------------------------
 // Generate canvas element //
@@ -77,16 +83,10 @@
     var centerX;
     var centerY;
 
-    var mousePositionX;
-    var mousePositionY;
-    var mouseCursor;
-    var isRunning;
-
     var lines = 0;
     var objects = [];
 
     var emitters = [];
-    var modules = [];
 
     var garbageObjects = 0;
 
@@ -99,7 +99,6 @@
 
     eventBus.emit = function (eventName, data) {
 
-
       if (!this.events[eventName] || this.events[eventName].length < 1) return;
 
       this.events[eventName].forEach(function (listener) {
@@ -111,7 +110,6 @@
     };
 
     eventBus.subscribe = function (eventName, listener) {
-
 
       if (!this.events[eventName]) this.events[eventName] = [];
 
@@ -136,11 +134,10 @@
         window.particleEngine = {};
         window.particleEngine.resizeHandler = {};
 
-
       } else if (typeof window.particleEngine["animation" + containerId] !== "undefined") {
 
         // if animation already exists - cancel animation and remove window listeners to delete connections for garbage collection
-        cancelAnimation(window.particleEngine["animation" + containerId]);
+        stopAnimation(window.particleEngine["animation" + containerId]);
         window.removeEventListener("resize", window.particleEngine.resizeHandler["animation" + containerId], false)
 
       }
@@ -148,6 +145,7 @@
       // create window.resize listener for current animation
       window.particleEngine.resizeHandler["animation" + containerId] = function () {
 
+        stopAnimation(window.particleEngine["animation" + containerId]);
         initAnimation();
 
       }
