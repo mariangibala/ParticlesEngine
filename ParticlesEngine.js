@@ -404,9 +404,6 @@ var emitter = (function () {
         particle.init(particleConfig);
 
       }
-
-      this.prototype = Emitter.prototype;
-
     };
 
     PointEmitter.prototype = Emitter.prototype;
