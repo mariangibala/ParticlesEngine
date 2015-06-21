@@ -4,7 +4,7 @@
 
 var statistics = (function () {
 
-  var statistics = {}
+  var statistics = {};
 
   statistics.init = function () {
 
@@ -59,13 +59,13 @@ var statistics = (function () {
       ctx.fillText("Connections between particles: " + lines, 10, canvas.height - 30);
 
       lines = 0;
-    }
+    };
 
     // Subscribe request Statistics event //
-    eventBus.subscribe("requestStatistics", requestStatistics)
+    eventBus.subscribe("requestStatistics", requestStatistics);
 
-  }
+  };
 
-  return statistics
+  return statistics;
 
 }());

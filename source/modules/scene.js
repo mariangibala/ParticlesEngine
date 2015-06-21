@@ -7,7 +7,7 @@ var scene = (function () {
 
     scene.update = function () {
 
-      frame++
+      frame++;
 
       // Test interactions between particles every 3 frames for better performance
       // todo - implement test 1/4 interactions per frame (Xxxx -> xXxx -> xxXx -> xxxX)
@@ -38,7 +38,9 @@ var scene = (function () {
 
           var particle = objects[x];
 
-          if (particle.closestElement) particle.drawLine();
+          if (particle.closestElement) {
+            particle.drawLine();
+          }
         }
       }
 
@@ -49,7 +51,7 @@ var scene = (function () {
         particle.doActions();
 
         // append global forces
-        particle.appendGlobalForces(options.globalForceX, options.globalForceY)
+        particle.appendGlobalForces(options.globalForceX, options.globalForceY);
 
         if (particle.active) {
 
@@ -59,7 +61,7 @@ var scene = (function () {
 
         } else if ((!particle.destroyIt) && (!particle.active) && (!particle.isFading)) {
 
-          particle.lifeTime = 100 //getRandomBetween(options.lifeTimeMin,options.lifeTimeMax);
+          particle.lifeTime = 100; //getRandomBetween(options.lifeTimeMin,options.lifeTimeMax);
           particle.positionX = particle.initialPositionX;
           particle.positionY = particle.initialPositionY;
 
@@ -72,19 +74,18 @@ var scene = (function () {
 
       }
 
-      for (var x=0; x < emitters.length; x++) {
+      for (var x = 0; x < emitters.length; x++) {
 
-        emitters[x].update()
+        emitters[x].update();
 
       }
 
-
-      eventBus.emit("refreshScene")
+      eventBus.emit("refreshScene");
 
     };
 
-  }
+  };
 
-  return scene
+  return scene;
 
 }());

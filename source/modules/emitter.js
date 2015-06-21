@@ -31,7 +31,7 @@ var emitter = (function () {
 
     Emitter.prototype.destroy = function () {
 
-      for (var x=0; x<objects.length; x++){
+      for (var x = 0; x < objects.length; x++){
 
         var particle = objects[x];
 

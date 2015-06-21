@@ -34,7 +34,7 @@
 
   generateParticles = function (containerId) {
 
-    "use strict"
+    "use strict";
 
 // ----------------------------------------------------
 // Use setTimeout if there is no support for requestAnimationFrame
@@ -45,7 +45,7 @@
 
     var requestAnimationFrame = window.requestAnimationFrame || function (callback) {
 
-        return setTimeout(callback, 1000 / 60)
+        return setTimeout(callback, 1000 / 60);
       };
 
     var stopAnimation = function () {
@@ -60,8 +60,9 @@
 //-----------------------------------------------------
 
     var container = document.getElementById(containerId);
-    if (container === null) return console.error("ParticlesEngine Error - Container is Null");
-
+    if (container === null) {
+      return console.error("ParticlesEngine Error - Container is Null");
+    }
 
     var canvas = document.createElement("canvas");
     canvas.id = "particles_" + containerId;
@@ -94,29 +95,28 @@
 // Sub/Pub pattern to emit events //
 //-----------------------------------------------------
 
-    var eventBus = {}
-    eventBus.events = {}
+    var eventBus = {};
+    eventBus.events = {};
 
     eventBus.emit = function (eventName, data) {
 
-      if (!this.events[eventName] || this.events[eventName].length < 1) return;
+      if (!this.events[eventName] || this.events[eventName].length < 1) {
+        return;
+      }
 
       this.events[eventName].forEach(function (listener) {
-
         listener(data || {});
-
       });
 
     };
 
     eventBus.subscribe = function (eventName, listener) {
+      if (!this.events[eventName]) {
+        this.events[eventName] = [];
+      }
 
-      if (!this.events[eventName]) this.events[eventName] = [];
-
-      this.events[eventName].push(listener)
-
+      this.events[eventName].push(listener);
     };
-
 
 // ----------------------------------------------------
 // Init function //
@@ -138,7 +138,7 @@
 
         // if animation already exists - cancel animation and remove window listeners to delete connections for garbage collection
         stopAnimation(window.particleEngine["animation" + containerId]);
-        window.removeEventListener("resize", window.particleEngine.resizeHandler["animation" + containerId], false)
+        window.removeEventListener("resize", window.particleEngine.resizeHandler["animation" + containerId], false);
 
       }
 
@@ -148,7 +148,7 @@
         stopAnimation(window.particleEngine["animation" + containerId]);
         initAnimation();
 
-      }
+      };
 
       // new handler
       window.addEventListener("resize", window.particleEngine.resizeHandler["animation" + containerId], false)
@@ -169,7 +169,7 @@
       emitters.length = 0;
       garbageObjects = 0;
 
-      eventBus.emit("init")
+      eventBus.emit("init");
 
       loop();
 

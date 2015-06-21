@@ -56,10 +56,10 @@ var basic = (function () {
 
     basic.getPosition = function(x,y){
 
-    }
+    };
 
-  }
+  };
 
-  return basic
+  return basic;
 
-}())
+}());

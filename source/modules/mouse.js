@@ -17,7 +17,7 @@ var mouse = (function () {
 
     mouse.Interaction.prototype.grabElements = function () {
 
-      interactionElements = []
+      interactionElements = [];
 
       for (var x = 0; x < objects.length; x++) {
 
@@ -26,7 +26,7 @@ var mouse = (function () {
 
         if (distanceToObject < options.mouseInteractionDistance) {
 
-          interactionElements.push(objects[x])
+          interactionElements.push(objects[x]);
 
         }
       }
@@ -45,12 +45,12 @@ var mouse = (function () {
 
         }
 
-        if (options.mouseInteractionType == "gravity") {
+        if (options.mouseInteractionType === "gravity") {
 
           object.vectorX = this.positionX;
           object.vectorY = this.positionY;
 
-        } else if (options.mouseInteractionType == "initial") {
+        } else if (options.mouseInteractionType === "initial") {
 
           object.vectorX = object.initialPositionX;
           object.vectorY = object.initialPositionY;
@@ -97,8 +97,8 @@ var mouse = (function () {
 
     }
 
-  }
+  };
 
-  return mouse
+  return mouse;
 
 }());

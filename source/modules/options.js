@@ -72,5 +72,5 @@ var options = {
 
   }
 
-}
+};
 

@@ -1,20 +1,17 @@
 // init modules
+createGlobalParticlesObject();
+basic.init();
+garbageCollector.init();
+particles.init();
+mouse.init();
+emitter.init();
 
-createGlobalParticlesObject()
-basic.init()
-garbageCollector.init()
-particles.init()
-mouse.init()
-emitter.init()
+scene.init();
 
-scene.init()
-
-fading.init()
-forces.init()
-background.init()
-statistics.init()
-
-
+fading.init();
+forces.init();
+background.init();
+statistics.init();
 
 
 canvas.onmousemove = function (e) {
@@ -31,8 +28,6 @@ var clearCanvas = function () {
 
 };
 
-
-
 // ----------------------------------------------------
 // Init! //
 //-----------------------------------------------------
@@ -44,7 +39,9 @@ var loop = function () {
 
   window.particleEngine["animation" + containerId] = requestAnimationFrame(loop);
 
-  if (options.showStatistics) eventBus.emit("requestStatistics")
+  if (options.showStatistics) {
+    eventBus.emit("requestStatistics");
+  }
 
 };
 

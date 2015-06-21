@@ -30,7 +30,7 @@ var particles = (function () {
     particles.Particle.prototype.destroy = function(){
 
       this.destroyIt = true;
-      garbageObjects++
+      garbageObjects++;
 
     };
 
@@ -61,7 +61,7 @@ var particles = (function () {
 
       // generate new vector
 
-      if (this.timer == this.duration) {
+      if (this.timer === this.duration) {
 
         this.calculateVector();
         this.timer = 0;
@@ -90,13 +90,13 @@ var particles = (function () {
       this.green = particleConfig.particleColor.green;
       this.blue = particleConfig.particleColor.blue;
 
-      this.color = "rgba(" + this.red + "," + this.green + "," + this.blue + "," + this.opacity + ")"
+      this.color = "rgba(" + this.red + "," + this.green + "," + this.blue + "," + this.opacity + ")";
 
       this.duration = basic.getRandomBetween(particleConfig.durationMin, particleConfig.durationMax);
       this.limit = particleConfig.moveLimit;
       this.timer = 0;
 
-      this.lifeTime = getLifeTime(particleConfig.lifeTimeMin, particleConfig.lifeTimeMax)
+      this.lifeTime = getLifeTime(particleConfig.lifeTimeMin, particleConfig.lifeTimeMax);
 
       this.actions = []; // container for temporary effects
 
@@ -114,7 +114,7 @@ var particles = (function () {
 
       if ((typeof min !== "undefined") && (typeof max !== "undefined")){
 
-        return basic.getRandomBetween(min, max)
+        return basic.getRandomBetween(min, max);
 
       } else {
 
@@ -167,14 +167,22 @@ var particles = (function () {
         var minPX = particle.positionX - particle.limit;
         var maxPX = particle.positionX + particle.limit;
 
-        if (maxPX > canvas.width) maxPX = canvas.width;
-        if (minPX < 0) minPX = 0;
+        if (maxPX > canvas.width) {
+          maxPX = canvas.width;
+        }
+        if (minPX < 0) {
+          minPX = 0;
+        }
 
         var minPY = particle.positionY - particle.limit;
-        var maxPY = particle.positionY + particle.limit
+        var maxPY = particle.positionY + particle.limit;
 
-        if (maxPY > canvas.height) maxPY = canvas.height;
-        if (minPY < 0) minPY = 0;
+        if (maxPY > canvas.height) {
+          maxPY = canvas.height;
+        }
+        if (minPY < 0) {
+          minPY = 0;
+        }
 
         newPosition.positionX = basic.getRandomBetween(minPX, maxPX);
         newPosition.positionY = basic.getRandomBetween(minPY, maxPY);
@@ -197,40 +205,38 @@ var particles = (function () {
 
     particles.Particle.prototype.getCenterX = function () {
 
-      if (this.particleConfig.particleType == "square") {
+      if (this.particleConfig.particleType === "square") {
 
         centerX = this.positionX + (this.size * 0.5);
 
-      } else if (this.particleConfig.particleType == "circle") {
+      } else if (this.particleConfig.particleType === "circle") {
 
         centerX = this.positionX;
 
       }
 
-      return centerX
+      return centerX;
 
     };
 
     particles.Particle.prototype.getCenterY = function () {
 
-      if (this.particleConfig.particleType == "square") {
+      if (this.particleConfig.particleType === "square") {
 
         centerY = this.positionY + (this.size * 0.5);
 
-      } else if (this.particleConfig.particleType == "circle") {
+      } else if (this.particleConfig.particleType === "circle") {
 
         centerY = this.positionY;
 
       }
 
-      return centerY
+      return centerY;
 
     };
 
 
-    // ----------------------------------------------------
-    // Find closest element //
-    //-----------------------------------------------------
+    // Find closest element
     // Brute-force method to test interactions between particles
     // loop starts from particle.index value to avoid double tests.
 
@@ -238,11 +244,12 @@ var particles = (function () {
 
       for (var x = this.index + 1; x < objects.length; x++) {
 
-        if (!this.active ) return;
+        if (!this.active) {
+          return;
+        }
+
         var testedObject = objects[x];
-
         var distance = basic.getDistance(this, testedObject);
-
 
         // find the closest element
         if ((distance < this.closestDistance) && (testedObject.active === true)) {
@@ -274,7 +281,7 @@ var particles = (function () {
       ctx.stroke();
       lines++;
 
-    }
+    };
 
     particles.Particle.prototype.updateLifeTime = function () {
 
@@ -283,7 +290,7 @@ var particles = (function () {
       }
 
       if (this.lifeTime === 0) {
-        this.fadeOut()
+        this.fadeOut();
       }
 
     };
@@ -298,26 +305,26 @@ var particles = (function () {
       this.updateColor();
       ctx.fillStyle = this.color;
 
-      if (this.particleConfig.particleType == "square") {
+      if (this.particleConfig.particleType === "square") {
 
         ctx.fillRect(this.positionX, this.positionY, this.size, this.size);
 
-      } else if (this.particleConfig.particleType == "circle") {
+      } else if (this.particleConfig.particleType === "circle") {
 
         ctx.beginPath();
         ctx.arc(this.positionX, this.positionY, this.size, 0, 2 * Math.PI);
-        ctx.fill()
+        ctx.fill();
         ctx.closePath();
 
-      } else if (this.particleConfig.particleType == "text") {
+      } else if (this.particleConfig.particleType === "text") {
 
-        ctx.font = this.size + "px Verdana"
-        ctx.fillText(options.particleText, this.positionX, this.positionY)
+        ctx.font = this.size + "px Verdana";
+        ctx.fillText(options.particleText, this.positionX, this.positionY);
       }
 
     };
-  }
+  };
 
-  return particles
+  return particles;
 
 }());
