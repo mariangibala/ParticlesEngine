@@ -40,26 +40,22 @@
 // Use setTimeout if there is no support for requestAnimationFrame
 //-----------------------------------------------------
 
-
-    var cancelAnimation = window.cancelAnimationFrame || window.clearTimeout;
-
     var requestAnimationFrame = window.requestAnimationFrame || function (callback) {
-
         return setTimeout(callback, 1000 / 60);
       };
 
+    var cancelAnimation = window.cancelAnimationFrame || window.clearTimeout;
+
     var stopAnimation = function () {
-
       cancelAnimation(window.particleEngine["animation" + containerId]);
-
     };
-
 
 // ----------------------------------------------------
 // Generate canvas element //
 //-----------------------------------------------------
 
     var container = document.getElementById(containerId);
+
     if (container === null) {
       return console.error("ParticlesEngine Error - Container is Null");
     }
@@ -72,7 +68,6 @@
     container.innerHTML = "";
     container.style.overflow = "hidden";
     container.appendChild(canvas);
-
 
     var ctx = canvas.getContext("2d");
 
@@ -88,8 +83,6 @@
     var objects = [];
 
     var emitters = [];
-
-    var garbageObjects = 0;
 
 // ----------------------------------------------------
 // Sub/Pub pattern to emit events //
@@ -124,11 +117,7 @@
 
     var createGlobalParticlesObject = function () {
 
-      // ----------------------------------------------------
       // Handle different instances and global window.particleEngine //
-      //-----------------------------------------------------
-
-
       if (typeof window.particleEngine === "undefined") {
 
         window.particleEngine = {};
@@ -167,7 +156,6 @@
 
       objects.length = 0;
       emitters.length = 0;
-      garbageObjects = 0;
 
       eventBus.emit("init");
 
@@ -384,8 +372,33 @@ var emitter = (function () {
 
       for (var x = 0; x < emitterConfig.particlesNumber; x++) {
 
-        var positionX = (canvas.width / 100) * emitterConfig.positionX + emitterConfig.positionXpx;
-        var positionY = (canvas.height / 100) * emitterConfig.positionY + emitterConfig.positionYpx;
+        var
+          positionX,
+          positionY,
+          positionXpx,
+          positionYpx,
+          positionXpercentage,
+          positionYpercentage;
+
+        // get pixel position
+        positionXpx = emitterConfig.positionXpx || 0;
+        positionYpx = emitterConfig.positionYpx || 0;
+
+        // get % position
+        if(emitterConfig.positionX) {
+          positionXpercentage = (canvas.width / 100) * emitterConfig.positionX;
+        } else {
+          positionXpercentage = 0;
+        }
+
+        if(emitterConfig.positionY) {
+          positionYpercentage = (canvas.height / 100) * emitterConfig.positionX;
+        } else {
+          positionYpercentage = 0;
+        }
+
+        positionX = positionXpercentage + positionXpx;
+        positionY = positionYpercentage + positionYpx;
 
         var particle = new particles.Particle(positionX, positionY, this.name);
         particle.init(particleConfig);
@@ -403,21 +416,17 @@ var emitter = (function () {
       var emitter;
 
       if (type === "text") {
-
         emitter = new TextEmitter(emitterConfig, particleConfig);
 
       } else if (type === "point") {
-
         emitter = new PointEmitter(emitterConfig, particleConfig);
 
       } else if (type === "random") {
-
         emitter = new RandomEmitter(emitterConfig, particleConfig);
 
       }
 
       emitters.push(emitter);
-
     };
 
     window.particleEngine.addEmitter = addEmitter;
@@ -629,26 +638,29 @@ var garbageCollector = (function(){
 
   garbageCollector.init = function(){
 
+    var garbageObjects = 0;
+
+    garbageCollector.increase = function(){
+      garbageObjects++;
+    };
+
     garbageCollector.collectGarbage = function(){
-
-      garbageObjects = 0;
-
       for (var x = objects.length-1; x >= 0; x-- ){
-
         var particle = objects[x];
-        if ((particle.destroyIt === true) && (!particle.active)) {
 
+        if ((particle.destroyIt === true) && (!particle.active)) {
           objects.splice(x,1);
         }
       }
+
+      garbageObjects = 0;
     };
 
-
     eventBus.subscribe('refreshScene', function(){
-      if (garbageObjects > 100) garbageCollector.collectGarbage();
+      if (garbageObjects > 100) {
+        garbageCollector.collectGarbage();
+      }
     });
-
-
   };
 
   return garbageCollector;
@@ -937,7 +949,7 @@ var particles = (function () {
     particles.Particle.prototype.destroy = function(){
 
       this.destroyIt = true;
-      garbageObjects++;
+      garbageCollector.increase();
 
     };
 
@@ -1343,7 +1355,6 @@ forces.init();
 background.init();
 statistics.init();
 
-
 canvas.onmousemove = function (e) {
 
   particleEngine.mousePositionX = e.clientX - container.offsetLeft + window.pageXOffset;
@@ -1351,16 +1362,11 @@ canvas.onmousemove = function (e) {
 
 };
 
-
 var clearCanvas = function () {
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
 };
-
-// ----------------------------------------------------
-// Init! //
-//-----------------------------------------------------
 
 var loop = function () {
 
@@ -1372,13 +1378,9 @@ var loop = function () {
   if (options.showStatistics) {
     eventBus.emit("requestStatistics");
   }
-
 };
 
-
 initAnimation();
-
-
 
 } // end generate...
 

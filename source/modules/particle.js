@@ -30,7 +30,7 @@ var particles = (function () {
     particles.Particle.prototype.destroy = function(){
 
       this.destroyIt = true;
-      garbageObjects++;
+      garbageCollector.increase();
 
     };
 

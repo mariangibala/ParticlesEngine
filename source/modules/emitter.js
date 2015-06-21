@@ -138,8 +138,33 @@ var emitter = (function () {
 
       for (var x = 0; x < emitterConfig.particlesNumber; x++) {
 
-        var positionX = (canvas.width / 100) * emitterConfig.positionX + emitterConfig.positionXpx;
-        var positionY = (canvas.height / 100) * emitterConfig.positionY + emitterConfig.positionYpx;
+        var
+          positionX,
+          positionY,
+          positionXpx,
+          positionYpx,
+          positionXpercentage,
+          positionYpercentage;
+
+        // get pixel position
+        positionXpx = emitterConfig.positionXpx || 0;
+        positionYpx = emitterConfig.positionYpx || 0;
+
+        // get % position
+        if(emitterConfig.positionX) {
+          positionXpercentage = (canvas.width / 100) * emitterConfig.positionX;
+        } else {
+          positionXpercentage = 0;
+        }
+
+        if(emitterConfig.positionY) {
+          positionYpercentage = (canvas.height / 100) * emitterConfig.positionX;
+        } else {
+          positionYpercentage = 0;
+        }
+
+        positionX = positionXpercentage + positionXpx;
+        positionY = positionYpercentage + positionYpx;
 
         var particle = new particles.Particle(positionX, positionY, this.name);
         particle.init(particleConfig);
@@ -157,21 +182,17 @@ var emitter = (function () {
       var emitter;
 
       if (type === "text") {
-
         emitter = new TextEmitter(emitterConfig, particleConfig);
 
       } else if (type === "point") {
-
         emitter = new PointEmitter(emitterConfig, particleConfig);
 
       } else if (type === "random") {
-
         emitter = new RandomEmitter(emitterConfig, particleConfig);
 
       }
 
       emitters.push(emitter);
-
     };
 
     window.particleEngine.addEmitter = addEmitter;

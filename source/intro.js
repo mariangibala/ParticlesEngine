@@ -40,26 +40,22 @@
 // Use setTimeout if there is no support for requestAnimationFrame
 //-----------------------------------------------------
 
-
-    var cancelAnimation = window.cancelAnimationFrame || window.clearTimeout;
-
     var requestAnimationFrame = window.requestAnimationFrame || function (callback) {
-
         return setTimeout(callback, 1000 / 60);
       };
 
+    var cancelAnimation = window.cancelAnimationFrame || window.clearTimeout;
+
     var stopAnimation = function () {
-
       cancelAnimation(window.particleEngine["animation" + containerId]);
-
     };
-
 
 // ----------------------------------------------------
 // Generate canvas element //
 //-----------------------------------------------------
 
     var container = document.getElementById(containerId);
+
     if (container === null) {
       return console.error("ParticlesEngine Error - Container is Null");
     }
@@ -72,7 +68,6 @@
     container.innerHTML = "";
     container.style.overflow = "hidden";
     container.appendChild(canvas);
-
 
     var ctx = canvas.getContext("2d");
 
@@ -88,8 +83,6 @@
     var objects = [];
 
     var emitters = [];
-
-    var garbageObjects = 0;
 
 // ----------------------------------------------------
 // Sub/Pub pattern to emit events //
@@ -124,11 +117,7 @@
 
     var createGlobalParticlesObject = function () {
 
-      // ----------------------------------------------------
       // Handle different instances and global window.particleEngine //
-      //-----------------------------------------------------
-
-
       if (typeof window.particleEngine === "undefined") {
 
         window.particleEngine = {};
@@ -167,7 +156,6 @@
 
       objects.length = 0;
       emitters.length = 0;
-      garbageObjects = 0;
 
       eventBus.emit("init");
 

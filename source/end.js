@@ -13,7 +13,6 @@ forces.init();
 background.init();
 statistics.init();
 
-
 canvas.onmousemove = function (e) {
 
   particleEngine.mousePositionX = e.clientX - container.offsetLeft + window.pageXOffset;
@@ -21,16 +20,11 @@ canvas.onmousemove = function (e) {
 
 };
 
-
 var clearCanvas = function () {
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
 };
-
-// ----------------------------------------------------
-// Init! //
-//-----------------------------------------------------
 
 var loop = function () {
 
@@ -42,13 +36,9 @@ var loop = function () {
   if (options.showStatistics) {
     eventBus.emit("requestStatistics");
   }
-
 };
 
-
 initAnimation();
-
-
 
 } // end generate...
 
