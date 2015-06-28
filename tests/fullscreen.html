@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <title>Particles Engine - Fullscreen test</title>
-<script src="../ParticlesEngine.js" type="text/jscript"></script>
+<script src="../ParticlesEngine.js" type="text/javascript"></script>
 
 <style>
 
@@ -42,16 +42,16 @@ initParticleEngine("animation1");
 
         particleEngine.addEmitter("point", {
 
-                    positionXpx: particleEngine.mousePositionX,
-                    positionYpx: particleEngine.mousePositionY,
+                    positionX: particleEngine.mousePositionX,
+                    positionY: particleEngine.mousePositionY,
                     particlesNumber: 100
                 },
                 {
-                    particleType: "circle", // square, text, circle
+                    particleType: "text", // square, text, circle
                     initialSize: 3,
                     randomSize: true,
-                    minimumSize: 1,
-                    maximumSize: 3,
+                    minimumSize: 10,
+                    maximumSize: 30,
                     moveLimit: 150,
                     durationMin: 30,
                     durationMax: 70,
@@ -60,7 +60,10 @@ initParticleEngine("animation1");
                     lifeTimeMax: 150,
 
                     // particles color
-                    particleColor: {red: 255, green: 0, blue: 0, alpha: 1},
+                    red: 255,
+                    green: 0,
+                    blue: 0,
+                    alpha: 1,
                     randomOpacity: true,
                     particleMinimumOpacity: 0.1,
                     particleMaximumOpacity: 0.9

@@ -2,36 +2,32 @@
 // Scene forces    //
 //-----------------------------------------------------
 
-var forces = (function () {
+var forces = {};
+forces.init = function () {
 
-  var forces = {};
+  Particle.prototype.appendGlobalForces = function (forceX, forceY) {
+    // handle X position
+    this.positionX = this.positionX + forceX;
 
-  forces.init = function () {
+    if (this.positionX + this.size > canvas.width) {
+      this.positionX = canvas.width - this.size;
+    }
 
-    particles.Particle.prototype.appendGlobalForces = function (forceX, forceY) {
-      // handle X position
-      this.positionX = this.positionX + forceX;
+    if (this.positionX < 0) {
+      this.positionX = 0;
+    }
 
-      if (this.positionX + this.size > canvas.width) {
-        this.positionX = canvas.width - this.size;
-      }
+    // handle Y position
+    this.positionY = this.positionY + forceY;
 
-      if (this.positionX < 0) {
-        this.positionX = 0;
-      }
+    if (this.positionY > canvas.height) {
+      this.positionY = canvas.height;
+    }
 
-      // handle Y position
-      this.positionY = this.positionY + forceY;
-
-      if (this.positionY > canvas.height) {
-        this.positionY = canvas.height;
-      }
-
-      if (this.positionY < 0) {
-        this.positionY = 0;
-      }
-    };
+    if (this.positionY < 0) {
+      this.positionY = 0;
+    }
   };
 
   return forces;
-}());
+};

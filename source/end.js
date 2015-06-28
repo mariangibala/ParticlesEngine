@@ -1,15 +1,22 @@
 // init modules
 createGlobalParticlesObject();
-basic.init();
-garbageCollector.init();
-particles.init();
-mouse.init();
-emitter.init();
-scene.init();
-fading.init();
-forces.init();
-background.init();
-statistics.init();
+
+
+var
+  basic = basic.init(),
+  garbageCollector = garbageCollector.init(),
+  Particle = particle.init(),
+  CircleParticle = circleParticle.init(),
+  SquareParticle = squareParticle.init(),
+  TextParticle = textParticle.init(),
+  mouse = mouse.init(),
+  emitter = emitter.init(),
+  scene = scene.init(),
+  fading = fading.init(),
+  forces = forces.init(),
+  background = background.init(),
+  statistics = statistics.init();
+
 
 canvas.onmousemove = function (e) {
   particleEngine.mousePositionX = e.clientX - container.offsetLeft + window.pageXOffset;
