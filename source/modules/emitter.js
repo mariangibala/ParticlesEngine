@@ -1,24 +1,35 @@
 // ----------------------------------------------------
 // Emitters //
 //-----------------------------------------------------
-
 var emitter = (function () {
 
   var emitter = {};
-
   emitter.init = function () {
 
     var Emitter = function () {};
 
+    var defaults = {
+      positionX: 0,
+      positionY: 0,
+      positionXpx: 0,
+      positionYpx: 0,
+      particlesNumber: 20,
+      lifeTime: 1
+    };
+
     Emitter.prototype.init = function (emitterConfig) {
+      this.name = "emitter" + emitters.length;
 
-      this.name = "emitter" + basic.getRandomBetween(1, 1000);
-      this.lifeTime = emitterConfig.lifeTime || false;
-
+      for (var x in defaults) {
+        if (emitterConfig.hasOwnProperty(x)){
+          this[x] = emitterConfig[x];
+        } else {
+          this[x] = defaults[x];
+        }
+      }
     };
 
     Emitter.prototype.update = function () {
-
       if (this.lifeTime) {
         this.lifeTime--;
       }
@@ -26,176 +37,83 @@ var emitter = (function () {
       if (this.lifeTime <= 0) {
         this.destroy();
       }
-
     };
 
     Emitter.prototype.destroy = function () {
-
       for (var x = 0; x < objects.length; x++){
-
         var particle = objects[x];
 
         if (particle.emitter === this.name) {
-
           particle.destroy();
-
         }
       }
 
       var index = emitters.indexOf(this);
-      emitters.splice(index,1);
-
-    };
-
-    var TextEmitter = function (config) {
-
-      this.init();
-
-      this.emitterPositions = [];
-
-      var positionX = (canvas.width / 100) * config.positionX + config.positionXpx;
-      var positionY = (canvas.height / 100) * config.positionY + config.positionYpx;
-
-
-      ctx.fillStyle = "rgba(254,255,255,1)";
-      ctx.font = config.emitterFontSize + "px Verdana";
-      ctx.fillText(config.text, positionX, positionY);
-
-      // scan all pixels and generate possible positions array
-
-      var particleData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      var data = particleData.data;
-
-      var x = 0;
-      var y = 0;
-
-      for (var i = 0; i < data.length; i += 4) {
-
-        x++;
-
-        if (x === canvas.width) {
-
-          x = 0;
-          y++;
-
-        }
-
-        // if pixel isn't empty (standard transparent) then push position into emitter
-        if (data[i] === 254) {
-
-          this.emitterPositions.push([x, y]);
-
-        }
-      }
-
-      this.createTextEmitterParticles(config);
-
-    };
-
-    TextEmitter.prototype = Emitter.prototype;
-
-    TextEmitter.prototype.createTextEmitterParticles = function (config) {
-
-      for (var x = 0; x < config.particlesNumber; x++) {
-
-        // do not create particle if there is no available emitter position
-        if (this.emitterPositions.length < 2) {
-          return;
-        }
-
-        var randomNumber = basic.getRandomBetween(1, this.emitterPositions.length - 1);
-        var position = this.emitterPositions[randomNumber];
-
-        var particle = new particles.Particle(position[0], position[1], this.name);
-        particle.init();
-
-        this.emitterPositions.splice(randomNumber, 1);
-
-      }
+      emitters.splice(index, 1);
     };
 
     var RandomEmitter = function (emitterConfig, particleConfig) {
-
       this.init(emitterConfig);
 
-      for (var x = 0; x < emitterConfig.particlesNumber; x++) {
-
+      for (var x = 0; x < this.particlesNumber; x++) {
         var randomX = Math.floor((Math.random() * canvas.width) + 1);
         var randomY = Math.floor((Math.random() * canvas.height) + 1);
 
         var particle = new particles.Particle(randomX, randomY, this.name);
         particle.init(particleConfig);
-
       }
-
     };
 
     RandomEmitter.prototype = Emitter.prototype;
 
     var PointEmitter = function (emitterConfig, particleConfig) {
-
       this.init(emitterConfig);
 
-      for (var x = 0; x < emitterConfig.particlesNumber; x++) {
+      var
+        positionX,
+        positionY,
+        positionXpercentage,
+        positionYpercentage;
 
-        var
-          positionX,
-          positionY,
-          positionXpx,
-          positionYpx,
-          positionXpercentage,
-          positionYpercentage;
+      // get % position
+      if (this.positionX) {
+        positionXpercentage = (canvas.width / 100) * this.positionX;
+      } else {
+        positionXpercentage = 0;
+      }
 
-        // get pixel position
-        positionXpx = emitterConfig.positionXpx || 0;
-        positionYpx = emitterConfig.positionYpx || 0;
+      if (this.positionY) {
+        positionYpercentage = (canvas.height / 100) * this.positionX;
+      } else {
+        positionYpercentage = 0;
+      }
 
-        // get % position
-        if(emitterConfig.positionX) {
-          positionXpercentage = (canvas.width / 100) * emitterConfig.positionX;
-        } else {
-          positionXpercentage = 0;
-        }
+      positionX = positionXpercentage + this.positionXpx;
+      positionY = positionYpercentage + this.positionYpx;
 
-        if(emitterConfig.positionY) {
-          positionYpercentage = (canvas.height / 100) * emitterConfig.positionX;
-        } else {
-          positionYpercentage = 0;
-        }
-
-        positionX = positionXpercentage + positionXpx;
-        positionY = positionYpercentage + positionYpx;
-
+      for (var x = 0; x < this.particlesNumber; x++) {
         var particle = new particles.Particle(positionX, positionY, this.name);
-        particle.init(particleConfig);
 
+        particle.init(particleConfig);
       }
     };
 
     PointEmitter.prototype = Emitter.prototype;
 
     var addEmitter = function (type, emitterConfig, particleConfig ) {
-
       var emitter;
 
-      if (type === "text") {
-        emitter = new TextEmitter(emitterConfig, particleConfig);
-
-      } else if (type === "point") {
+      if (type === "point") {
         emitter = new PointEmitter(emitterConfig, particleConfig);
-
       } else if (type === "random") {
         emitter = new RandomEmitter(emitterConfig, particleConfig);
-
       }
 
       emitters.push(emitter);
     };
 
-    window.particleEngine.addEmitter = addEmitter;
-
+    particleEngine.addEmitter = addEmitter;
   };
 
   return emitter;
-
 }());

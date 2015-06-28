@@ -1,7 +1,4 @@
-// ----------------------------------------------------
-// Garbage collector   //
-//-----------------------------------------------------
-
+// Garbage collector
 var garbageCollector = (function(){
 
   var garbageCollector = {};
@@ -34,7 +31,4 @@ var garbageCollector = (function(){
   };
 
   return garbageCollector;
-
 })();
-
-

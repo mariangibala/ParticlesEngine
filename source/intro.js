@@ -32,7 +32,7 @@
 
 (function (window) {
 
-  generateParticles = function (containerId) {
+  initParticleEngine = function (containerId) {
 
     "use strict";
 
@@ -74,25 +74,20 @@
 // ----------------------------------------------------
 // Define local variables //
 //-----------------------------------------------------
-
-    var maximumPossibleDistance;
-    var centerX;
-    var centerY;
-
-    var lines = 0;
-    var objects = [];
-
-    var emitters = [];
+    var
+      particleEngine = {},
+      maximumPossibleDistance,
+      lines = 0,
+      objects = [],
+      emitters = [];
 
 // ----------------------------------------------------
 // Sub/Pub pattern to emit events //
 //-----------------------------------------------------
-
     var eventBus = {};
     eventBus.events = {};
 
     eventBus.emit = function (eventName, data) {
-
       if (!this.events[eventName] || this.events[eventName].length < 1) {
         return;
       }
@@ -100,7 +95,6 @@
       this.events[eventName].forEach(function (listener) {
         listener(data || {});
       });
-
     };
 
     eventBus.subscribe = function (eventName, listener) {
@@ -112,47 +106,35 @@
     };
 
 // ----------------------------------------------------
-// Init function //
+// Init//
 //-----------------------------------------------------
-
     var createGlobalParticlesObject = function () {
-
-      // Handle different instances and global window.particleEngine //
+      // Handle different instances and global window.particleEngine /
       if (typeof window.particleEngine === "undefined") {
+        window.particleEngine = particleEngine;
+        particleEngine.resizeHandler = {};
 
-        window.particleEngine = {};
-        window.particleEngine.resizeHandler = {};
-
-      } else if (typeof window.particleEngine["animation" + containerId] !== "undefined") {
-
-        // if animation already exists - cancel animation and remove window listeners to delete connections for garbage collection
-        stopAnimation(window.particleEngine["animation" + containerId]);
-        window.removeEventListener("resize", window.particleEngine.resizeHandler["animation" + containerId], false);
-
+      // if animation already exists - cancel animation and remove window listeners to delete connections for garbage collection
+      } else if (typeof particleEngine["animation" + containerId] !== "undefined") {
+        stopAnimation(particleEngine["animation" + containerId]);
+        window.removeEventListener("resize", particleEngine.resizeHandler["animation" + containerId], false);
       }
 
       // create window.resize listener for current animation
-      window.particleEngine.resizeHandler["animation" + containerId] = function () {
-
-        stopAnimation(window.particleEngine["animation" + containerId]);
+      particleEngine.resizeHandler["animation" + containerId] = function () {
+        stopAnimation(particleEngine["animation" + containerId]);
         initAnimation();
-
       };
 
       // new handler
-      window.addEventListener("resize", window.particleEngine.resizeHandler["animation" + containerId], false)
-
+      window.addEventListener("resize", particleEngine.resizeHandler["animation" + containerId], false);
     };
 
     var initAnimation = function(){
-
       canvas.width = container.clientWidth;
       canvas.height = container.clientHeight;
 
       maximumPossibleDistance = Math.round(Math.sqrt((canvas.width * canvas.width) + (canvas.height * canvas.height)));
-
-      centerX = Math.floor(canvas.width / 2);
-      centerY = Math.floor(canvas.height / 2);
 
       objects.length = 0;
       emitters.length = 0;
@@ -160,6 +142,4 @@
       eventBus.emit("init");
 
       loop();
-
     };
-

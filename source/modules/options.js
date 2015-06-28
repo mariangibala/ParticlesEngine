@@ -1,19 +1,15 @@
 // ----------------------------------------------------
 // Default options //
 //-----------------------------------------------------
-
 var options = {
-
   particleType: "square", // square, text, circle
   particleText: "!",
 
-  emitterShape: "M",
-  emitterFontSize: 150,
-  emitterType: "point", // random, point, text
+  emitterType: "point", // random, point
   emitterPositionX: 50, // % position
   emitterPositionY: 50, // % position
-  emitterPositionXpx: 0, // move px
-  emitterPositionYpx: 0, // move px
+  emitterPositionXpx: 200, // move px
+  emitterPositionYpx: 200, // move px
   particlesNumber: 1,
   initialSize: 3,
   randomSize: true,
