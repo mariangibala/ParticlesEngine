@@ -1,22 +1,14 @@
 module.exports = function(grunt) {
 
-
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
 
-
-
         "jsbeautifier": {
             files: [
-            
-                    
-                    'source/modules/*.js',
-                   
-                    
-                    ],
+                'source/modules/*.js',
+            ],
             
             options: {
-
                 js: {
                     "braceStyle": "end-expand",
                     "indentChar": " ",
@@ -36,23 +28,19 @@ module.exports = function(grunt) {
             }
         },
 
-
         concat: {
             dist: {
                 src: [
                     'source/intro.js',
                     'source/modules/*.js',
                     'source/end.js'
-
                 ],
                 dest: 'ParticlesEngine.js'
             }
         },
 
         uglify: {
-
             my_target: {
-
                 files: {
                     'ParticlesEngine.min.js': ['ParticlesEngine.js']
                 }
@@ -64,19 +52,16 @@ module.exports = function(grunt) {
                 files: ['source/*.js', 'source/modules/*.js'],
                 tasks: ['concat', 'uglify'],
                 options: {
-                    spawn: false,
-                },
+                    spawn: false
+                }
             }
         }
-
     });
 
-
     grunt.loadNpmTasks('grunt-contrib-concat');
-    grunt.loadNpmTasks('grunt-contrib-uglify')
+    grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks("grunt-jsbeautifier");
-
 
     grunt.registerTask('default', ['jsbeautifier', 'concat', 'uglify', ]);
 

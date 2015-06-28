@@ -1,4 +1,6 @@
-// Garbage collector
+// ----------------------------------------------------
+// Garbage collector //
+//-----------------------------------------------------
 var garbageCollector = (function(){
 
   var garbageCollector = {};

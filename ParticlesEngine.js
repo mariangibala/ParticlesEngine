@@ -143,7 +143,9 @@
 
       loop();
     };
-// Background module //
+// ----------------------------------------------------
+// Background //
+//-----------------------------------------------------
 var background = (function () {
 
   var background = {};
@@ -197,7 +199,7 @@ var background = (function () {
   return background;
 }());
 // ----------------------------------------------------
-// Emitters //
+// Emitter //
 //-----------------------------------------------------
 var emitter = (function () {
 
@@ -328,9 +330,7 @@ var fading = (function () {
 
     // helper function do not use without facade
     particles.Particle.prototype.fadeTo = function (value) {
-
       if (this.opacity < value) {
-
         this.opacity = this.opacity + 0.01;
 
         if (this.opacity > 1) {
@@ -338,20 +338,16 @@ var fading = (function () {
         }
 
       } else if (this.opacity > value) {
-
         this.opacity = this.opacity - 0.01;
       }
     };
 
     // Facade fadeIn
     particles.Particle.prototype.fadeIn = function () {
-
       this.active = true;
 
       if (this.actions.indexOf("fadeIn") === -1) {
-
         this.actions.push("fadeIn");
-
       }
 
       // Fade in to initial opacity
@@ -365,18 +361,14 @@ var fading = (function () {
 
     // Facade FadeOut
     particles.Particle.prototype.fadeOut = function () {
-
       this.isFading = true;
 
       if (this.actions.indexOf("fadeOut") === -1) {
-
         this.actions.push("fadeOut");
-
       }
 
       // 0.05 is safe value to prevent negative opacity
       if (this.opacity < 0.05) {
-
         this.opacity = 0;
 
         // deactivate particle, remove from particles array
@@ -387,15 +379,13 @@ var fading = (function () {
 
       this.fadeTo(0);
     };
-
   };
 
   return fading;
-
 }());
 
 // ----------------------------------------------------
-// External forces    //
+// Scene forces    //
 //-----------------------------------------------------
 
 var forces = (function () {
@@ -405,7 +395,6 @@ var forces = (function () {
   forces.init = function () {
 
     particles.Particle.prototype.appendGlobalForces = function (forceX, forceY) {
-
       // handle X position
       this.positionX = this.positionX + forceX;
 
@@ -427,16 +416,14 @@ var forces = (function () {
       if (this.positionY < 0) {
         this.positionY = 0;
       }
-
     };
   };
 
   return forces;
-
 }());
 
 // ----------------------------------------------------
-// Statistics module //
+// Statistics //
 //-----------------------------------------------------
 
 var statistics = (function () {
@@ -444,22 +431,17 @@ var statistics = (function () {
   var statistics = {};
 
   statistics.init = function () {
-
     var lastCalledTime;
     var fps;
     var averageFps;
     var averageFpsTemp = 0;
     var averageFpsCounter = 0;
 
-
     var requestStatistics = function () {
-
       if (!lastCalledTime) {
-
         lastCalledTime = Date.now();
         fps = 0;
         return;
-
       }
 
       var delta = (new Date().getTime() - lastCalledTime) / 1000;
@@ -470,16 +452,13 @@ var statistics = (function () {
       averageFpsCounter++;
 
       if (averageFpsCounter === 5) {
-
         averageFps = Math.floor(averageFpsTemp / 5);
         averageFpsCounter = 0;
         averageFpsTemp = 0;
       }
 
       if (!averageFps) {
-
         return;
-
       } else if (averageFps < 10) {
         /*  stopAnimation();
          averageFps = undefined;
@@ -487,7 +466,6 @@ var statistics = (function () {
       }
 
       ctx.fillStyle = "#fff";
-
       ctx.font = "10px Verdana";
       ctx.fillText("FPS: " + fps, 10, canvas.height - 70);
       ctx.fillText("Average FPS: " + averageFps, 10, canvas.height - 60);
@@ -504,10 +482,11 @@ var statistics = (function () {
   };
 
   return statistics;
-
 }());
 
-// Garbage collector
+// ----------------------------------------------------
+// Garbage collector //
+//-----------------------------------------------------
 var garbageCollector = (function(){
 
   var garbageCollector = {};
@@ -554,58 +533,42 @@ var basic = (function () {
 
     // returns random number
     basic.getRandomBetween = function (a, b) {
-
       return Math.floor(Math.random() * (b - a + 1)) + a;
-
     };
 
     // returns decimal number
     basic.getRandomDecimalBetween = function (a, b) {
-
-      var b = b * 100;
-      var a = a * 100;
+      b = b * 100;
+      a = a * 100;
 
       var randomNumber = this.getRandomBetween(a, b);
       var finalNumber = randomNumber / 100;
 
       return finalNumber;
-
     };
 
     // Tests if an object is inside the area of another object and returns true or false
-
     basic.hitTest = function (object1, object2) {
-
-      if ((object1.positionX < object2.positionX + object2.size) && (object1.positionX + object2.size > object2.positionX) &&
-        (object1.positionY < object2.positionY + object2.size) && (object1.positionY > object2.positionY)) {
-
+      if ((object1.positionX < object2.positionX + object2.size) &&
+        (object1.positionX + object2.size > object2.positionX) &&
+        (object1.positionY < object2.positionY + object2.size) &&
+        (object1.positionY > object2.positionY)) {
         return true;
-
       } else {
-
         return false;
-
       }
     };
 
     // returns distance between objects, uses Pythagorean theorem to calculate value
-
     basic.getDistance = function (element1, element2) {
-
       var difX = Math.round(Math.abs(element1.positionX - element2.positionX));
       var difY = Math.round(Math.abs(element1.positionY - element2.positionY));
 
       return Math.round(Math.sqrt((difX * difX) + (difY * difY)));
     };
-
-    basic.getPosition = function(x,y){
-
-    };
-
   };
 
   return basic;
-
 }());
 
 // ----------------------------------------------------
@@ -626,52 +589,37 @@ var mouse = (function () {
     var interactionElements = [];
 
     mouse.Interaction.prototype.grabElements = function () {
-
       interactionElements = [];
 
       for (var x = 0; x < objects.length; x++) {
-
         var object = objects[x];
         var distanceToObject = basic.getDistance(this, object);
 
         if (distanceToObject < options.mouseInteractionDistance) {
-
           interactionElements.push(objects[x]);
-
         }
       }
     };
 
-
     mouse.Interaction.prototype.interact = function () {
-
       for (var x = 0; x < interactionElements.length; x++) {
-
         var object = interactionElements[x];
 
         if (options.drawMouseConnections) {
-
           drawLine(this, object);
-
         }
 
         if (options.mouseInteractionType === "gravity") {
-
           object.vectorX = this.positionX;
           object.vectorY = this.positionY;
-
         } else if (options.mouseInteractionType === "initial") {
-
           object.vectorX = object.initialPositionX;
           object.vectorY = object.initialPositionY;
-
         }
       }
     };
 
-
     var drawLine = function(elementA, elementB){
-
       ctx.beginPath();
       ctx.moveTo(elementA.positionX, elementA.positionY);
       ctx.lineTo(elementB.getCenterX(), elementB.getCenterY());
@@ -684,33 +632,23 @@ var mouse = (function () {
     };
 
     mouse.Interaction.prototype.updateAnimation = function () {
-
       this.positionX = particleEngine.mousePositionX;
       this.positionY = particleEngine.mousePositionY;
-
       this.grabElements();
       this.interact();
     };
 
-
     var refreshMouseInteraction = function () {
-
       mouseCursor.updateAnimation();
-
     };
 
     // subscribe refresh event
-
     if ((options.mouseInteraction) && (options.mouseInteractionDistance > 0) ) {
-
       eventBus.subscribe("refreshScene", refreshMouseInteraction);
-
     }
-
   };
 
   return mouse;
-
 }());
 
 // ----------------------------------------------------
@@ -1030,6 +968,9 @@ var particles = (function () {
 
   return particles;
 }());
+// ----------------------------------------------------
+// Scene //
+//-----------------------------------------------------
 var scene = (function () {
 
   var scene = {};
@@ -1038,34 +979,26 @@ var scene = (function () {
     var frame = 0;
 
     var handleConnections = function(){
-
       // Test interactions between particles every 3 frames for better performance
       // todo - implement test 1/4 interactions per frame (Xxxx -> xXxx -> xxXx -> xxxX)
 
       if ((options.drawConnections) && (frame === 3)) {
-
         frame = 0;
 
         for (var x = 0; x < objects.length; x++) {
-
           var particle = objects[x];
           particle.closestDistance = maximumPossibleDistance;
           particle.closestElement = null;
-
         }
 
         for (var x = 0; x < objects.length; x++) {
-
           var particle = objects[x];
           particle.testInteraction();
-
         }
       }
 
       if (options.drawConnections) {
-
         for (var x = 0; x < objects.length; x++) {
-
           var particle = objects[x];
 
           if (particle.closestElement) {
@@ -1073,17 +1006,13 @@ var scene = (function () {
           }
         }
       }
-
     };
 
     scene.update = function () {
-
       frame++;
-
       handleConnections();
 
       for (var x = 0; x < objects.length; x++) {
-
         var particle = objects[x];
 
         particle.doActions();
@@ -1092,12 +1021,9 @@ var scene = (function () {
         particle.appendGlobalForces(options.globalForceX, options.globalForceY);
 
         if (particle.active) {
-
           particle.updateAnimation();
           particle.updateLifeTime();
-
         } else if ((!particle.destroyIt) && (!particle.active) && (!particle.isFading)) {
-
           particle.lifeTime = 100; //getRandomBetween(options.lifeTimeMin,options.lifeTimeMax);
           particle.positionX = particle.initialPositionX;
           particle.positionY = particle.initialPositionY;
@@ -1106,24 +1032,18 @@ var scene = (function () {
           particle.timer = 0;
 
           particle.fadeIn();
-
         }
       }
 
       for (var x = 0; x < emitters.length; x++) {
-
         emitters[x].update();
-
       }
 
       eventBus.emit("refreshScene");
-
     };
-
   };
 
   return scene;
-
 }());
 
 // init modules

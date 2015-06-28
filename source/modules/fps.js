@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// Statistics module //
+// Statistics //
 //-----------------------------------------------------
 
 var statistics = (function () {
@@ -7,22 +7,17 @@ var statistics = (function () {
   var statistics = {};
 
   statistics.init = function () {
-
     var lastCalledTime;
     var fps;
     var averageFps;
     var averageFpsTemp = 0;
     var averageFpsCounter = 0;
 
-
     var requestStatistics = function () {
-
       if (!lastCalledTime) {
-
         lastCalledTime = Date.now();
         fps = 0;
         return;
-
       }
 
       var delta = (new Date().getTime() - lastCalledTime) / 1000;
@@ -33,16 +28,13 @@ var statistics = (function () {
       averageFpsCounter++;
 
       if (averageFpsCounter === 5) {
-
         averageFps = Math.floor(averageFpsTemp / 5);
         averageFpsCounter = 0;
         averageFpsTemp = 0;
       }
 
       if (!averageFps) {
-
         return;
-
       } else if (averageFps < 10) {
         /*  stopAnimation();
          averageFps = undefined;
@@ -50,7 +42,6 @@ var statistics = (function () {
       }
 
       ctx.fillStyle = "#fff";
-
       ctx.font = "10px Verdana";
       ctx.fillText("FPS: " + fps, 10, canvas.height - 70);
       ctx.fillText("Average FPS: " + averageFps, 10, canvas.height - 60);
@@ -67,5 +58,4 @@ var statistics = (function () {
   };
 
   return statistics;
-
 }());

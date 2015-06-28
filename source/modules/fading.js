@@ -10,9 +10,7 @@ var fading = (function () {
 
     // helper function do not use without facade
     particles.Particle.prototype.fadeTo = function (value) {
-
       if (this.opacity < value) {
-
         this.opacity = this.opacity + 0.01;
 
         if (this.opacity > 1) {
@@ -20,20 +18,16 @@ var fading = (function () {
         }
 
       } else if (this.opacity > value) {
-
         this.opacity = this.opacity - 0.01;
       }
     };
 
     // Facade fadeIn
     particles.Particle.prototype.fadeIn = function () {
-
       this.active = true;
 
       if (this.actions.indexOf("fadeIn") === -1) {
-
         this.actions.push("fadeIn");
-
       }
 
       // Fade in to initial opacity
@@ -47,18 +41,14 @@ var fading = (function () {
 
     // Facade FadeOut
     particles.Particle.prototype.fadeOut = function () {
-
       this.isFading = true;
 
       if (this.actions.indexOf("fadeOut") === -1) {
-
         this.actions.push("fadeOut");
-
       }
 
       // 0.05 is safe value to prevent negative opacity
       if (this.opacity < 0.05) {
-
         this.opacity = 0;
 
         // deactivate particle, remove from particles array
@@ -69,9 +59,7 @@ var fading = (function () {
 
       this.fadeTo(0);
     };
-
   };
 
   return fading;
-
 }());
