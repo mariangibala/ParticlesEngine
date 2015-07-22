@@ -4,10 +4,23 @@
 var options = {
   //global forces
   globalForceX: 5,
-  globalForceY: -1,
+  globalForceY: -2,
 
   showStatistics: true,
-  background: "gradient", // null, gradient, image
+  background: 'gradient', // null, gradient
+
+  // mouse connections
+  mouseInteraction: true,
+  mouseInteractionType: "gravity", // initial, gravity
+
+  drawMouseConnections: false,
+  mouseInteractionDistance: 300,
+  mouseConnectionColor: {
+    red: 255,
+    green: 255,
+    blue: 255,
+    alpha: 0.3
+  },
 
   // Use object with property names, to easy identify values in color picker
   backgroundColors: {
@@ -25,7 +38,7 @@ var options = {
 };
 
 var particleDefaults = {
-  particleType: "square", // square, text, circle
+  type: "square", // square, text, circle
   particleText: "!",
 
   positionX: 0,
@@ -36,30 +49,27 @@ var particleDefaults = {
   minimumSize: 1,
   maximumSize: 3,
   moveLimit: 300,
-  durationMin:50,
+  durationMin: 50,
   durationMax: 200,
 
-  lifeTimeMin: 10,
-  lifeTimeMax : 10,
+  lifeTimeMin: 600,
+  lifeTimeMax: 500,
 
   // particles color
   red: 255,
   green: 255,
   blue: 255,
-  alpha:1,
+  opacity: 1,
   randomOpacity: true,
-  particleMinimumOpacity: 0.1,
-  particleMaximumOpacity: 0.9,
+  minimumOpacity: 0.1,
+  maximumOpacity: 0.9,
 
   // connections between particles
-  drawConnections: false,
-  connectionColor: {red:255, green:255, blue:255, alpha:1},
-
-  // mouse connections
-  mouseInteraction: false,
-  mouseInteractionType: "gravity", // initial, gravity
-
-  drawMouseConnections: false,
-  mouseInteractionDistance: 300,
-  mouseConnectionColor: {red:255, green:255, blue:255, alpha:1}
+  drawConnections: false ,
+  connectionColor: {
+    red: 255,
+    green: 255,
+    blue: 255,
+    alpha: 1
+  }
 };

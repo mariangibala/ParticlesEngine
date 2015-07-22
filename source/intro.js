@@ -114,7 +114,7 @@
         window.particleEngine = particleEngine;
         particleEngine.resizeHandler = {};
 
-      // if animation already exists - cancel animation and remove window listeners to delete connections for garbage collection
+        // if animation already exists - cancel animation and remove window listeners to delete connections for garbage collection
       } else if (typeof particleEngine["animation" + containerId] !== "undefined") {
         stopAnimation(particleEngine["animation" + containerId]);
         window.removeEventListener("resize", particleEngine.resizeHandler["animation" + containerId], false);

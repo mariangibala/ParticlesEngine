@@ -114,7 +114,7 @@
         window.particleEngine = particleEngine;
         particleEngine.resizeHandler = {};
 
-      // if animation already exists - cancel animation and remove window listeners to delete connections for garbage collection
+        // if animation already exists - cancel animation and remove window listeners to delete connections for garbage collection
       } else if (typeof particleEngine["animation" + containerId] !== "undefined") {
         stopAnimation(particleEngine["animation" + containerId]);
         window.removeEventListener("resize", particleEngine.resizeHandler["animation" + containerId], false);
@@ -196,7 +196,6 @@ background.init = function () {
   return background;
 };
 
-
 // ----------------------------------------------------
 // Basic functions //
 //-----------------------------------------------------
@@ -227,7 +226,8 @@ basic.init = function () {
       (object1.positionY < object2.positionY + object2.size) &&
       (object1.positionY > object2.positionY)) {
       return true;
-    } else {
+    }
+    else {
       return false;
     }
   };
@@ -261,14 +261,8 @@ circleParticle.init = function () {
     return this.positionY;
   };
 
-  CircleParticle.prototype.updateAnimation = function () {
-    // calculate new position (Vector animation)
-    this.calculateNewPosition(this.vectorX, this.vectorY);
-
-    // draw particle
-    this.updateColor();
+  CircleParticle.prototype.draw = function () {
     ctx.fillStyle = this.color;
-
     ctx.beginPath();
     ctx.arc(this.positionX, this.positionY, this.size, 0, 2 * Math.PI);
     ctx.fill();
@@ -281,6 +275,7 @@ circleParticle.init = function () {
 // ----------------------------------------------------
 // Emitter //
 //-----------------------------------------------------
+
 var emitter = {};
 emitter.init = function () {
 
@@ -289,20 +284,21 @@ emitter.init = function () {
   var defaults = {
     positionX: 0,
     positionY: 0,
-    positionXpx: 0,
-    positionYpx: 0,
     particlesNumber: 20,
     lifeTime: 1
   };
 
-  var _getParticlesType = function(type){
-    if (type === 'square'){
+  var _getParticlesType = function (type) {
+    if (type === 'square') {
       return new SquareParticle();
-    } else if (type === 'circle'){
+    }
+    else if (type === 'circle') {
       return new CircleParticle();
-    } else if (type === 'text'){
+    }
+    else if (type === 'text') {
       return new TextParticle();
-    } else {
+    }
+    else {
       // fallback if particles type is not defined
       return new SquareParticle();
     }
@@ -312,9 +308,10 @@ emitter.init = function () {
     this.name = "emitter" + emitters.length;
 
     for (var x in defaults) {
-      if (emitterConfig.hasOwnProperty(x)){
+      if (emitterConfig.hasOwnProperty(x)) {
         this[x] = emitterConfig[x];
-      } else {
+      }
+      else {
         this[x] = defaults[x];
       }
     }
@@ -331,7 +328,7 @@ emitter.init = function () {
   };
 
   Emitter.prototype.destroy = function () {
-    for (var x = 0; x < objects.length; x++){
+    for (var x = 0; x < objects.length; x++) {
       var particle = objects[x];
 
       if (particle.emitter === this.name) {
@@ -347,11 +344,10 @@ emitter.init = function () {
     this.init(emitterConfig);
 
     for (var x = 0; x < this.particlesNumber; x++) {
-
       particleConfig.positionX = Math.floor((Math.random() * canvas.width) + 1);
       particleConfig.positionY = Math.floor((Math.random() * canvas.height) + 1);
 
-      var particle = _getParticlesType(particleConfig.particleType)
+      var particle = _getParticlesType(particleConfig.type);
       particle.create(particleConfig, this.name);
     }
   };
@@ -365,19 +361,20 @@ emitter.init = function () {
     particleConfig.positionY = emitterConfig.positionY;
 
     for (var x = 0; x < this.particlesNumber; x++) {
-      var particle = _getParticlesType(particleConfig.particleType)
+      var particle = _getParticlesType(particleConfig.type);
       particle.create(particleConfig, this.name);
     }
   };
 
   PointEmitter.prototype = new Emitter();
 
-  var addEmitter = function (type, emitterConfig, particleConfig ) {
+  var addEmitter = function (type, emitterConfig, particleConfig) {
     var emitter;
 
     if (type === "point") {
       emitter = new PointEmitter(emitterConfig, particleConfig);
-    } else if (type === "random") {
+    }
+    else if (type === "random") {
       emitter = new RandomEmitter(emitterConfig, particleConfig);
     }
 
@@ -404,7 +401,8 @@ fading.init = function () {
         this.opacity = 1;
       }
 
-    } else if (this.opacity > value) {
+    }
+    else if (this.opacity > value) {
       this.opacity = this.opacity - 0.01;
     }
   };
@@ -420,7 +418,7 @@ fading.init = function () {
     // Fade in to initial opacity
     this.fadeTo(this.initialOpacity);
 
-    // remove fading action if opacty reach initial
+    // remove fading action if opacity reach initial
     if ((this.initialOpacity - this.opacity) <= 0) {
       this.actions.splice(this.actions.indexOf("fadeIn"), 1);
     }
@@ -449,7 +447,6 @@ fading.init = function () {
 
   return fading;
 };
-
 
 // ----------------------------------------------------
 // Scene forces    //
@@ -521,7 +518,8 @@ statistics.init = function () {
 
     if (!averageFps) {
       return;
-    } else if (averageFps < 10) {
+    }
+    else if (averageFps < 10) {
       /*  stopAnimation();
        averageFps = undefined;
        $("#fpsError").fadeIn();*/
@@ -548,37 +546,24 @@ statistics.init = function () {
 //-----------------------------------------------------
 
 var garbageCollector = {};
-garbageCollector.init = function(){
+garbageCollector.init = function () {
 
-  var garbageObjects = 0;
-
-  garbageCollector.increase = function(){
-    garbageObjects++;
-  };
-
-  garbageCollector.collectGarbage = function(){
-    for (var x = objects.length-1; x >= 0; x-- ){
+  garbageCollector.collectGarbage = function () {
+    for (var x = objects.length - 1; x >= 0; x--) {
       var particle = objects[x];
 
       if ((particle.destroyIt === true) && (!particle.active)) {
-        objects.splice(x,1);
+        objects.splice(x, 1);
       }
     }
-
-    garbageObjects = 0;
   };
 
-  eventBus.subscribe('refreshScene', function(){
-    if (garbageObjects > 100) {
-      garbageCollector.collectGarbage();
-    }
+  eventBus.subscribe('refreshScene', function () {
+    garbageCollector.collectGarbage();
   });
 
   return garbageCollector;
 };
-
-
-
 
 // ----------------------------------------------------
 // Mouse interactions
@@ -587,19 +572,21 @@ garbageCollector.init = function(){
 var mouse = {};
 mouse.init = function () {
 
-  // Create mouse interaction object
-  mouse.Interaction = function () {};
+  var Interaction = function () {};
 
-  var mouseCursor = new mouse.Interaction();
+  var mouseInteraction = new Interaction();
 
   // Container for elements to interact
   var interactionElements = [];
 
-  mouse.Interaction.prototype.grabElements = function () {
+  Interaction.prototype.grabElements = function () {
     interactionElements = [];
 
     for (var x = 0; x < objects.length; x++) {
       var object = objects[x];
+
+
+
       var distanceToObject = basic.getDistance(this, object);
 
       if (distanceToObject < options.mouseInteractionDistance) {
@@ -608,7 +595,7 @@ mouse.init = function () {
     }
   };
 
-  mouse.Interaction.prototype.interact = function () {
+  Interaction.prototype.interact = function () {
     for (var x = 0; x < interactionElements.length; x++) {
       var object = interactionElements[x];
 
@@ -619,14 +606,15 @@ mouse.init = function () {
       if (options.mouseInteractionType === "gravity") {
         object.vectorX = this.positionX;
         object.vectorY = this.positionY;
-      } else if (options.mouseInteractionType === "initial") {
+      }
+      else if (options.mouseInteractionType === "initial") {
         object.vectorX = object.initialPositionX;
         object.vectorY = object.initialPositionY;
       }
     }
   };
 
-  var drawLine = function(elementA, elementB){
+  var drawLine = function (elementA, elementB) {
     ctx.beginPath();
     ctx.moveTo(elementA.positionX, elementA.positionY);
     ctx.lineTo(elementB.getCenterX(), elementB.getCenterY());
@@ -638,7 +626,7 @@ mouse.init = function () {
     ctx.stroke();
   };
 
-  mouse.Interaction.prototype.updateAnimation = function () {
+  Interaction.prototype.update = function () {
     this.positionX = particleEngine.mousePositionX;
     this.positionY = particleEngine.mousePositionY;
     this.grabElements();
@@ -646,15 +634,15 @@ mouse.init = function () {
   };
 
   var refreshMouseInteraction = function () {
-    mouseCursor.updateAnimation();
+    mouseInteraction.update();
   };
 
   // subscribe refresh event
-  if ((options.mouseInteraction) && (options.mouseInteractionDistance > 0) ) {
+  if ((options.mouseInteraction) && (options.mouseInteractionDistance > 0)) {
     eventBus.subscribe("refreshScene", refreshMouseInteraction);
   }
 
-  return mouse;
+  return Interaction;
 };
 
 // ----------------------------------------------------
@@ -663,10 +651,23 @@ mouse.init = function () {
 var options = {
   //global forces
   globalForceX: 5,
-  globalForceY: -1,
+  globalForceY: -2,
 
   showStatistics: true,
-  background: "gradient", // null, gradient, image
+  background: 'gradient', // null, gradient
+
+  // mouse connections
+  mouseInteraction: true,
+  mouseInteractionType: "gravity", // initial, gravity
+
+  drawMouseConnections: false,
+  mouseInteractionDistance: 300,
+  mouseConnectionColor: {
+    red: 255,
+    green: 255,
+    blue: 255,
+    alpha: 0.3
+  },
 
   // Use object with property names, to easy identify values in color picker
   backgroundColors: {
@@ -684,7 +685,7 @@ var options = {
 };
 
 var particleDefaults = {
-  particleType: "square", // square, text, circle
+  type: "square", // square, text, circle
   particleText: "!",
 
   positionX: 0,
@@ -695,32 +696,29 @@ var particleDefaults = {
   minimumSize: 1,
   maximumSize: 3,
   moveLimit: 300,
-  durationMin:50,
+  durationMin: 50,
   durationMax: 200,
 
-  lifeTimeMin: 10,
-  lifeTimeMax : 10,
+  lifeTimeMin: 600,
+  lifeTimeMax: 500,
 
   // particles color
   red: 255,
   green: 255,
   blue: 255,
-  alpha:1,
+  opacity: 1,
   randomOpacity: true,
-  particleMinimumOpacity: 0.1,
-  particleMaximumOpacity: 0.9,
+  minimumOpacity: 0.1,
+  maximumOpacity: 0.9,
 
   // connections between particles
-  drawConnections: false,
-  connectionColor: {red:255, green:255, blue:255, alpha:1},
-
-  // mouse connections
-  mouseInteraction: false,
-  mouseInteractionType: "gravity", // initial, gravity
-
-  drawMouseConnections: false,
-  mouseInteractionDistance: 300,
-  mouseConnectionColor: {red:255, green:255, blue:255, alpha:1}
+  drawConnections: false ,
+  connectionColor: {
+    red: 255,
+    green: 255,
+    blue: 255,
+    alpha: 1
+  }
 };
 
 // ----------------------------------------------------
@@ -737,7 +735,8 @@ particle.init = function () {
     if (newPosition > currentPosition) {
       step = (newPosition - currentPosition) / duration;
       newPosition = currentPosition + step;
-    } else {
+    }
+    else {
       step = (currentPosition - newPosition) / duration;
       newPosition = currentPosition - step;
     }
@@ -745,10 +744,11 @@ particle.init = function () {
     return newPosition;
   };
 
-  var _generateLifeTime = function(min, max) {
-    if ((typeof min !== "undefined") && (typeof max !== "undefined")){
+  var _generateLifeTime = function (min, max) {
+    if ((typeof min !== "undefined") && (typeof max !== "undefined")) {
       return basic.getRandomBetween(min, max);
-    } else {
+    }
+    else {
       return false;
     }
   };
@@ -796,9 +796,8 @@ particle.init = function () {
     }
   };
 
-  Particle.prototype.destroy = function(){
+  Particle.prototype.destroy = function () {
     this.destroyIt = true;
-    garbageCollector.increase();
   };
 
   Particle.prototype.calculateNewPosition = function (newX, newY) {
@@ -809,7 +808,8 @@ particle.init = function () {
     if (this.timer === this.duration) {
       this.calculateVector();
       this.timer = 0;
-    } else {
+    }
+    else {
       this.timer++;
     }
   };
@@ -818,13 +818,14 @@ particle.init = function () {
     this.color = "rgba(" + this.red + "," + this.green + "," + this.blue + "," + this.opacity + ")";
   };
 
-  Particle.prototype.create = function(particleConfig, emitter){
+  Particle.prototype.create = function (particleConfig, emitter) {
     this.emitter = emitter;
 
     for (var x in particleDefaults) {
-      if (particleConfig.hasOwnProperty(x)){
+      if (particleConfig.hasOwnProperty(x)) {
         this[x] = particleConfig[x];
-      } else {
+      }
+      else {
         this[x] = particleDefaults[x];
       }
     }
@@ -851,9 +852,7 @@ particle.init = function () {
 
   Particle.prototype.initOpacity = function () {
     if (this.randomOpacity) {
-      this.opacity = basic.getRandomDecimalBetween(this.particleMinimumOpacity, this.particleMaximumOpacity);
-    } else {
-      this.opacity = this.particleColor.alpha;
+      this.opacity = basic.getRandomDecimalBetween(this.minimumOpacity, this.maximumOpacity);
     }
 
     this.initialOpacity = this.opacity;
@@ -862,7 +861,8 @@ particle.init = function () {
   Particle.prototype.initSize = function () {
     if (this.randomSize) {
       this.size = basic.getRandomBetween(this.minimumSize, this.maximumSize);
-    } else {
+    }
+    else {
       this.size = this.initialSize;
     }
   };
@@ -874,12 +874,21 @@ particle.init = function () {
       particle = this;
 
     while ((typeof distance === "undefined") || (distance > this.moveLimit)) {
-      newDestination =_getNewDestination(particle);
+      newDestination = _getNewDestination(particle);
       distance = basic.getDistance(particle, newDestination);
     }
 
     this.vectorX = newDestination.positionX;
     this.vectorY = newDestination.positionY;
+  };
+
+  Particle.prototype.updateAnimation = function () {
+    // calculate new position (Vector animation)
+    this.calculateNewPosition(this.vectorX, this.vectorY);
+
+    // draw particle
+    this.updateColor();
+    this.draw();
   };
 
   // Find closest element
@@ -942,7 +951,7 @@ scene.init = function () {
 
   var frame = 0;
 
-  var handleConnections = function(){
+  var handleConnections = function () {
     // Test interactions between particles every 3 frames for better performance
     // todo - implement test 1/4 interactions per frame (Xxxx -> xXxx -> xxXx -> xxxX)
 
@@ -987,7 +996,8 @@ scene.init = function () {
       if (particle.active) {
         particle.updateAnimation();
         particle.updateLifeTime();
-      } else if ((!particle.destroyIt) && (!particle.active) && (!particle.isFading)) {
+      }
+      else if ((!particle.destroyIt) && (!particle.active) && (!particle.isFading)) {
         particle.lifeTime = 100; //getRandomBetween(options.lifeTimeMin,options.lifeTimeMax);
         particle.positionX = particle.initialPositionX;
         particle.positionY = particle.initialPositionY;
@@ -1027,12 +1037,7 @@ squareParticle.init = function () {
     return this.positionY + (this.size * 0.5);
   };
 
-  SquareParticle.prototype.updateAnimation = function () {
-    // calculate new position (Vector animation)
-    this.calculateNewPosition(this.vectorX, this.vectorY);
-
-    // draw particle
-    this.updateColor();
+  SquareParticle.prototype.draw = function () {
     ctx.fillStyle = this.color;
     ctx.fillRect(this.positionX, this.positionY, this.size, this.size);
   };
@@ -1059,11 +1064,6 @@ textParticle.init = function () {
   };
 
   TextParticle.prototype.updateAnimation = function () {
-    // calculate new position (Vector animation)
-    this.calculateNewPosition(this.vectorX, this.vectorY);
-
-    // draw particle
-    this.updateColor();
     ctx.font = this.size + "px Verdana";
     ctx.fillText(this.particleText, this.positionX, this.positionY);
   };

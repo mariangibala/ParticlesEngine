@@ -7,7 +7,7 @@ scene.init = function () {
 
   var frame = 0;
 
-  var handleConnections = function(){
+  var handleConnections = function () {
     // Test interactions between particles every 3 frames for better performance
     // todo - implement test 1/4 interactions per frame (Xxxx -> xXxx -> xxXx -> xxxX)
 
@@ -52,7 +52,8 @@ scene.init = function () {
       if (particle.active) {
         particle.updateAnimation();
         particle.updateLifeTime();
-      } else if ((!particle.destroyIt) && (!particle.active) && (!particle.isFading)) {
+      }
+      else if ((!particle.destroyIt) && (!particle.active) && (!particle.isFading)) {
         particle.lifeTime = 100; //getRandomBetween(options.lifeTimeMin,options.lifeTimeMax);
         particle.positionX = particle.initialPositionX;
         particle.positionY = particle.initialPositionY;

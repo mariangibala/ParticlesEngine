@@ -34,7 +34,8 @@ statistics.init = function () {
 
     if (!averageFps) {
       return;
-    } else if (averageFps < 10) {
+    }
+    else if (averageFps < 10) {
       /*  stopAnimation();
        averageFps = undefined;
        $("#fpsError").fadeIn();*/

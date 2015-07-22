@@ -17,11 +17,6 @@ textParticle.init = function () {
   };
 
   TextParticle.prototype.updateAnimation = function () {
-    // calculate new position (Vector animation)
-    this.calculateNewPosition(this.vectorX, this.vectorY);
-
-    // draw particle
-    this.updateColor();
     ctx.font = this.size + "px Verdana";
     ctx.fillText(this.particleText, this.positionX, this.positionY);
   };

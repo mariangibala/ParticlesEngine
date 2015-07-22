@@ -50,4 +50,3 @@ background.init = function () {
   eventBus.subscribe("init", createBackground);
   return background;
 };
-

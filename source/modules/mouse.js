@@ -5,19 +5,21 @@
 var mouse = {};
 mouse.init = function () {
 
-  // Create mouse interaction object
-  mouse.Interaction = function () {};
+  var Interaction = function () {};
 
-  var mouseCursor = new mouse.Interaction();
+  var mouseInteraction = new Interaction();
 
   // Container for elements to interact
   var interactionElements = [];
 
-  mouse.Interaction.prototype.grabElements = function () {
+  Interaction.prototype.grabElements = function () {
     interactionElements = [];
 
     for (var x = 0; x < objects.length; x++) {
       var object = objects[x];
+
+
+
       var distanceToObject = basic.getDistance(this, object);
 
       if (distanceToObject < options.mouseInteractionDistance) {
@@ -26,7 +28,7 @@ mouse.init = function () {
     }
   };
 
-  mouse.Interaction.prototype.interact = function () {
+  Interaction.prototype.interact = function () {
     for (var x = 0; x < interactionElements.length; x++) {
       var object = interactionElements[x];
 
@@ -37,14 +39,15 @@ mouse.init = function () {
       if (options.mouseInteractionType === "gravity") {
         object.vectorX = this.positionX;
         object.vectorY = this.positionY;
-      } else if (options.mouseInteractionType === "initial") {
+      }
+      else if (options.mouseInteractionType === "initial") {
         object.vectorX = object.initialPositionX;
         object.vectorY = object.initialPositionY;
       }
     }
   };
 
-  var drawLine = function(elementA, elementB){
+  var drawLine = function (elementA, elementB) {
     ctx.beginPath();
     ctx.moveTo(elementA.positionX, elementA.positionY);
     ctx.lineTo(elementB.getCenterX(), elementB.getCenterY());
@@ -56,7 +59,7 @@ mouse.init = function () {
     ctx.stroke();
   };
 
-  mouse.Interaction.prototype.updateAnimation = function () {
+  Interaction.prototype.update = function () {
     this.positionX = particleEngine.mousePositionX;
     this.positionY = particleEngine.mousePositionY;
     this.grabElements();
@@ -64,13 +67,13 @@ mouse.init = function () {
   };
 
   var refreshMouseInteraction = function () {
-    mouseCursor.updateAnimation();
+    mouseInteraction.update();
   };
 
   // subscribe refresh event
-  if ((options.mouseInteraction) && (options.mouseInteractionDistance > 0) ) {
+  if ((options.mouseInteraction) && (options.mouseInteractionDistance > 0)) {
     eventBus.subscribe("refreshScene", refreshMouseInteraction);
   }
 
-  return mouse;
+  return Interaction;
 };

@@ -14,7 +14,8 @@ fading.init = function () {
         this.opacity = 1;
       }
 
-    } else if (this.opacity > value) {
+    }
+    else if (this.opacity > value) {
       this.opacity = this.opacity - 0.01;
     }
   };
@@ -30,7 +31,7 @@ fading.init = function () {
     // Fade in to initial opacity
     this.fadeTo(this.initialOpacity);
 
-    // remove fading action if opacty reach initial
+    // remove fading action if opacity reach initial
     if ((this.initialOpacity - this.opacity) <= 0) {
       this.actions.splice(this.actions.indexOf("fadeIn"), 1);
     }
@@ -59,4 +60,3 @@ fading.init = function () {
 
   return fading;
 };
-

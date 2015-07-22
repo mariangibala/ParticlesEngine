@@ -28,7 +28,8 @@ basic.init = function () {
       (object1.positionY < object2.positionY + object2.size) &&
       (object1.positionY > object2.positionY)) {
       return true;
-    } else {
+    }
+    else {
       return false;
     }
   };

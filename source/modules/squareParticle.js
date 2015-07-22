@@ -16,12 +16,7 @@ squareParticle.init = function () {
     return this.positionY + (this.size * 0.5);
   };
 
-  SquareParticle.prototype.updateAnimation = function () {
-    // calculate new position (Vector animation)
-    this.calculateNewPosition(this.vectorX, this.vectorY);
-
-    // draw particle
-    this.updateColor();
+  SquareParticle.prototype.draw = function () {
     ctx.fillStyle = this.color;
     ctx.fillRect(this.positionX, this.positionY, this.size, this.size);
   };
